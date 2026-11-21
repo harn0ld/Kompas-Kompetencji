@@ -3,15 +3,70 @@
 from __future__ import annotations
 
 import sqlite3
+import threading
 from pathlib import Path
 
 WERSJA_SCHEMATU = "7"
 
 
-def polacz(plik: str | Path) -> sqlite3.Connection:
+CZAS_OCZEKIWANIA_S = 30
+"""Ile wątek czeka na zwolnienie blokady zapisu (inny wątek w transakcji)."""
+
+
+class Baza:
+    """Połączenie z bazą bezpieczne dla wielu wątków (#82).
+
+    Endpointy FastAPI są synchroniczne i działają w puli wątków, a jedno współdzielone
+    połączenie `sqlite3` dawało przy równoczesnych zapytaniach fałszywe 404/409/500. Każdy
+    wątek dostaje więc własne połączenie (tryb WAL: czytanie nie blokuje się z zapisem).
+    Obiekt zachowuje interfejs `sqlite3.Connection` (`execute`, `with baza:`, `commit`,
+    `close`), więc kod endpointów się nie zmienia. Cała obsługa jednego zapytania działa
+    w jednym wątku, dlatego transakcja `with baza:` i `rowcount`/`lastrowid` dotyczą
+    zawsze tego samego połączenia.
+    """
+
+    def __init__(self, plik: Path) -> None:
+        self.plik = plik
+        self._lokalne = threading.local()
+        self._wszystkie: list[sqlite3.Connection] = []
+        self._blokada = threading.Lock()
+
+    def polaczenie(self) -> sqlite3.Connection:
+        conn = getattr(self._lokalne, "conn", None)
+        if conn is None:
+            conn = sqlite3.connect(self.plik, timeout=CZAS_OCZEKIWANIA_S, check_same_thread=False)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute(f"PRAGMA busy_timeout={CZAS_OCZEKIWANIA_S * 1000}")
+            self._lokalne.conn = conn
+            with self._blokada:
+                self._wszystkie.append(conn)
+        return conn
+
+    def execute(self, *args, **kwargs) -> sqlite3.Cursor:
+        return self.polaczenie().execute(*args, **kwargs)
+
+    def commit(self) -> None:
+        self.polaczenie().commit()
+
+    def __enter__(self) -> sqlite3.Connection:
+        return self.polaczenie().__enter__()
+
+    def __exit__(self, *exc) -> bool | None:
+        return self.polaczenie().__exit__(*exc)
+
+    def close(self) -> None:
+        with self._blokada:
+            for conn in self._wszystkie:
+                conn.close()
+            self._wszystkie.clear()
+        self._lokalne = threading.local()
+
+
+def polacz(plik: str | Path) -> Baza:
     plik = Path(plik)
     plik.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(plik, check_same_thread=False)
+    baza = Baza(plik)
+    conn = baza.polaczenie()
     conn.execute("CREATE TABLE IF NOT EXISTS meta (klucz TEXT PRIMARY KEY, wartosc TEXT NOT NULL)")
     conn.execute(
         "CREATE TABLE IF NOT EXISTS notatki (id INTEGER PRIMARY KEY, osoba_id TEXT NOT NULL,"
@@ -43,4 +98,4 @@ def polacz(plik: str | Path) -> sqlite3.Connection:
         (WERSJA_SCHEMATU,),
     )
     conn.commit()
-    return conn
+    return baza

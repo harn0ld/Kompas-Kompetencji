@@ -96,12 +96,14 @@ export function Arkusz({
   proces,
   moznaProwadzic,
   onWstecz,
+  onDalej,
 }: {
   token: string;
   osoba: Pracownik;
   proces: ProcesOceny;
   moznaProwadzic: boolean;
   onWstecz: () => void;
+  onDalej: () => void;
 }) {
   const [arkusz, setArkusz] = useState<ArkuszOkresowy | null>(null);
   const [pola, setPola] = useState<Record<string, string | null>>({});
@@ -264,6 +266,12 @@ export function Arkusz({
             Zarejestrowano w EZD (próbnie): {ezd.numer_sprawy}, {data(ezd.zarejestrowano.slice(0, 10))}, skrót PDF {ezd.sha256_pdf.slice(0, 12)}…
           </p>
         )}
+        <div className="wiersz">
+          <span className="meta">Propozycje do pola „Wnioski dotyczące indywidualnego programu rozwoju zawodowego”.</span>
+          <button type="button" className="jasny" onClick={onDalej}>
+            Dalej: wnioski rozwojowe
+          </button>
+        </div>
         <details className="pozostale">
           <summary>Przypisy wzoru</summary>
           <ol className="slad">

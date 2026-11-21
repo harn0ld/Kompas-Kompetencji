@@ -600,3 +600,96 @@ export const zarejestrujEzd = (token: string, procesId: number) =>
   fetch(`${sciezkaArkusza(procesId)}/ezd`, { method: "POST", headers: autoryzacja(token) }).then((r) =>
     odpowiedz<RejestracjaEzd>(r),
   );
+
+/* Panel HR: procesy, zagrożone terminy, przypomnienia (#38, kontrakt w issue #38). Bez treści ocen i notatek. */
+
+export interface TerminHr {
+  nazwa: string;
+  data: string;
+  adnotacje: SourceRef[];
+}
+
+export interface ProcesHr {
+  proces_id: number;
+  osoba_id: string;
+  osoba: string;
+  stanowisko: string;
+  przelozony_id: string;
+  sciezka: Sciezka;
+  arkusz: "B" | "C" | "PIERWSZA";
+  krok: number;
+  status: string;
+  najblizszy_termin: TerminHr | null;
+  dni_do_terminu: number | null;
+  zagrozony: boolean;
+  komunikat: string | null;
+}
+
+export interface PropozycjaPrzypomnienia {
+  proces_id: number;
+  adresat: string;
+  tresc: string;
+  termin: TerminHr;
+}
+
+export interface Przypomnienie {
+  id: number;
+  proces_id: number;
+  adresat: string;
+  tresc: string;
+  nadawca: string;
+  wyslano: string;
+}
+
+export const pobierzProcesyHr = (token: string, zagrozone: boolean) =>
+  fetch(`/api/hr/procesy?zagrozone=${zagrozone}`, { headers: autoryzacja(token) }).then((r) => odpowiedz<ProcesHr[]>(r));
+
+export const pobierzPropozycjePrzypomnien = (token: string) =>
+  fetch("/api/hr/przypomnienia/propozycje", { headers: autoryzacja(token) }).then((r) => odpowiedz<PropozycjaPrzypomnienia[]>(r));
+
+export const pobierzSkrzynke = (token: string) =>
+  fetch("/api/hr/skrzynka", { headers: autoryzacja(token) }).then((r) => odpowiedz<Przypomnienie[]>(r));
+
+export const wyslijPrzypomnienie = (token: string, dane: { proces_id: number; adresat: string; tresc: string }) =>
+  fetch("/api/hr/przypomnienia", {
+    method: "POST",
+    headers: { "content-type": "application/json", ...autoryzacja(token) },
+    body: JSON.stringify(dane),
+  }).then((r) => odpowiedz<Przypomnienie>(r));
+
+/* Krok 8: wnioski rozwojowe (#36, kontrakt w PR #76). Asystent niczego nie wpisuje. */
+
+export interface PropozycjaRozwoju {
+  typ: "OBSZAR_ROZWOJOWY" | "MOCNA_STRONA";
+  kompetencja: string;
+  wskaznik: string;
+  wskaznik_id: string | null;
+  poziom: number | null;
+  przyklady: string[];
+  formy: { id: string; nazwa: string; adnotacje: SourceRef[] }[];
+  regula: string;
+  uwagi: string[];
+}
+
+export interface WnioskiProcesu {
+  proces_id: number;
+  sciezka: Sciezka;
+  wynik_oceny: "pozytywna" | "negatywna" | null;
+  propozycje: {
+    wersja_metodyki: string;
+    dostepne: boolean;
+    komunikat: string | null;
+    propozycje: PropozycjaRozwoju[];
+    pominiete: { kompetencja: string; wskaznik: string; powod: string }[];
+    struktura_wnioskow: string[];
+    tresc_wnioskow: string | null;
+    reguly: { id: string; opis: string; adnotacje: SourceRef[] }[];
+    status: string;
+  };
+  pole_arkusza: string | null;
+  gdzie_wpisac: string;
+  wnioski_w_arkuszu: string | null;
+}
+
+export const pobierzWnioski = (token: string, procesId: number) =>
+  fetch(`/api/procesy/${procesId}/rozwoj`, { headers: autoryzacja(token) }).then((r) => odpowiedz<WnioskiProcesu>(r));
