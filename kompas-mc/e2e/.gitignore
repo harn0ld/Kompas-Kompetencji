@@ -1,0 +1,4 @@
+node_modules/
+.dane/
+test-results/
+playwright-report/

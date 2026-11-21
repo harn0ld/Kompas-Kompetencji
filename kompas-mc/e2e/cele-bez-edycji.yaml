@@ -1,0 +1,10 @@
+# Wariant konfiguracji celów do testu e2e: cele tworzy i zmienia tylko przełożony.
+pracownik_moze_edytowac: false
+
+regula:
+  id: cele.akceptuje-przelozony
+  opis: Wariant testowy konfiguracji/cele.yaml z wyłączoną edycją pracownika.
+  adnotacje:
+    - kategoria: DECYZJA_PROJEKTOWA
+      uzasadnienie: Konfiguracja testowa (e2e), ta sama reguła co w konfiguracja/cele.yaml.
+      zatwierdził: Hubert Nowak (spec #2, ticket #10)

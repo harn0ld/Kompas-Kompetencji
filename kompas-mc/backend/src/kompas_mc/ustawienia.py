@@ -83,4 +83,5 @@ class Ustawienia:
             wynik_pierwszej=Path(os.environ.get("KOMPAS_MC_WYNIK_PIERWSZEJ", konf / "wynik-pierwszej.yaml")),
             terminy_pierwszej=Path(os.environ.get("KOMPAS_MC_TERMINY_PIERWSZEJ", konf / "terminy-pierwszej.yaml")),
             samoocena=Path(os.environ.get("KOMPAS_MC_SAMOOCENA", konf / "samoocena.yaml")),
+            cele=Path(os.environ.get("KOMPAS_MC_CELE", konf / "cele.yaml")),
         )

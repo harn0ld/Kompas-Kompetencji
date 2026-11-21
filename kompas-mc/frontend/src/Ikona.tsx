@@ -14,6 +14,8 @@ const SCIEZKI = {
   wstecz: "m15 6-6 6 6 6",
   dokument: "M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 16.5h4",
   ok: "m5 12.5 4.5 4.5L19 7",
+  cel: "M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zM12 7.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zM12 11.5v1",
+  plus: "M12 5v14M5 12h14",
 } as const;
 
 export type NazwaIkony = keyof typeof SCIEZKI;

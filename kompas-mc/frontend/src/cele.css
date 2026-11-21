@@ -1,0 +1,39 @@
+/* Cele rozwojowe: wiersz celu rozwijany w miejscu, jedna czynność główna, historia drobnym pismem. */
+.cele { display: flex; flex-direction: column; gap: var(--o-16); }
+.cele .wiersz-tytulu h2 { display: flex; flex-wrap: wrap; align-items: center; gap: var(--o-8); margin: 0; }
+.cele-naglowek-akcje { display: flex; flex-wrap: wrap; align-items: center; gap: var(--o-16); }
+.cele-naglowek-akcje button.jasny { display: inline-flex; align-items: center; gap: var(--o-8); }
+.cele .status.info { background: var(--k-info-bg); color: var(--k-info-text); }
+.cele .status.wyciszona { background: none; color: var(--k-text-muted); border: 1px solid var(--k-line); }
+button.cele-wiecej { align-self: flex-start; min-height: 44px; }
+
+.cel { border-radius: var(--r-wiersz); background: var(--k-wiersz); }
+button.cel-glowa { width: 100%; min-height: 72px; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--o-12); row-gap: var(--o-4); align-items: center; padding: var(--o-12) var(--o-16); border: 0; border-radius: var(--r-wiersz); background: none; color: var(--k-text); text-align: left; white-space: normal; font-weight: var(--f-regular); }
+button.cel-glowa .ikona { grid-column: 2; grid-row: 1 / span 2; color: var(--k-link); }
+button.cel-glowa:active { background: var(--k-wiersz-pressed); }
+button.cel-glowa:focus-visible { outline: 2px solid var(--k-focus); outline-offset: -2px; }
+.cel-nazwa { grid-column: 1; display: flex; flex-wrap: wrap; align-items: center; gap: var(--o-8); font-weight: var(--f-semibold); }
+.cel-opis { grid-column: 1; color: var(--k-text-muted); font-size: var(--t-small-r); line-height: var(--t-small-l); }
+.cel-cialo { display: flex; flex-direction: column; gap: var(--o-12); padding: 0 var(--o-16) var(--o-16); }
+.cel-cialo p { margin: 0; }
+.cel-komentarz { padding: var(--o-12); border-radius: var(--r-sm); background: var(--k-attention-bg); color: var(--k-attention-text); }
+.cel-akcje { display: flex; flex-wrap: wrap; align-items: center; gap: var(--o-16); }
+.cel-historia { margin: 0; padding: var(--o-12) 0 0; list-style: none; border-top: 1px solid var(--k-line); color: var(--k-text-muted); font-size: var(--t-small-r); line-height: var(--t-small-l); display: flex; flex-direction: column; gap: var(--o-4); }
+.cel-odrzucenie, .cel-odrzucenie label { display: flex; flex-direction: column; gap: var(--o-8); }
+
+.cel-formularz { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--o-12) var(--o-16); padding: var(--o-16); border: 1px solid var(--k-line); border-radius: var(--r-wiersz); }
+.cel-formularz label { display: flex; flex-direction: column; gap: var(--o-4); font-weight: var(--f-medium); }
+.cel-formularz .szeroko { grid-column: 1 / -1; }
+.cele-podpowiedzi { display: flex; flex-direction: column; gap: var(--o-12); padding: var(--o-16); border-radius: var(--r-wiersz); background: var(--k-info-bg); }
+.cele-podpowiedz { display: flex; flex-direction: column; align-items: flex-start; gap: var(--o-4); padding-top: var(--o-12); border-top: 1px solid var(--k-line); }
+button.wstecz { display: inline-flex; align-items: center; gap: var(--o-4); align-self: flex-start; min-height: 44px; }
+
+@container (max-width: 640px) {
+  .cel-formularz { grid-template-columns: minmax(0, 1fr); }
+}
+@media (hover: hover) and (pointer: fine) {
+  button.cel-glowa:not(:disabled):hover { background: var(--k-wiersz-hover); }
+}
+@media (prefers-reduced-motion: reduce) {
+  button.cel-glowa { transition: none; }
+}

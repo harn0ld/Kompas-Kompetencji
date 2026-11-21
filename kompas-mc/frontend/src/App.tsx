@@ -13,6 +13,7 @@ import type { Pracownik, ProcesOceny } from "./api";
 import PanelZrodel from "./PanelZrodel";
 import { Powloka, type Widok } from "./Powloka";
 import { Pulpit } from "./Pulpit";
+import { Cele } from "./Cele";
 import { Zespol } from "./Zespol";
 import { KartaPracownika } from "./KartaPracownika";
 import { MojaSamoocena } from "./Samoocena";
@@ -31,6 +32,7 @@ export default function App() {
   const [karta, setKarta] = useState<Pracownik | null>(null);
   // „Moja samoocena” (#9): proces otwarty z karty na koncie pracownika.
   const [samoocena, setSamoocena] = useState<number | null>(null);
+  const [celeOsoby, setCeleOsoby] = useState<Pracownik | null>(null);
   const [oceniany, setOceniany] = useState<Pracownik | null>(null);
   const [proces, setProces] = useState<ProcesOceny | null>(null);
   const [etap, setEtap] = useState<Etap>("krok2");
@@ -59,6 +61,7 @@ export default function App() {
   // Wybór pozycji menu zamyka otwartą ocenę i wraca do listy.
   const przejdz = useCallback((w: Widok) => {
     setWidok(w);
+    setCeleOsoby(null);
     setKarta(null);
     setSamoocena(null);
     setOceniany(null);
@@ -196,6 +199,9 @@ export default function App() {
         />
       )}
       {!karta && !oceniany && widok === "zespol" && <Zespol sesja={sesja} onWyloguj={wyloguj} onWybierz={setKarta} />}
+      {!karta && !oceniany && widok === "cele" && (
+        <Cele sesja={sesja} osoba={celeOsoby} onOsoba={setCeleOsoby} onWyloguj={wyloguj} />
+      )}
       {!karta && !oceniany && widok === "pracownicy" && <Pracownicy sesja={sesja} onWyloguj={wyloguj} onWybierz={setKarta} />}
     </Powloka>
   );
