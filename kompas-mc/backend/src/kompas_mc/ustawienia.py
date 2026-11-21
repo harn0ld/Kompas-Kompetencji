@@ -54,6 +54,7 @@ class Ustawienia:
     wynik_pierwszej: Path = KATALOG_MC / "konfiguracja" / "wynik-pierwszej.yaml"
     terminy_pierwszej: Path = KATALOG_MC / "konfiguracja" / "terminy-pierwszej.yaml"
     samoocena: Path = KATALOG_MC / "konfiguracja" / "samoocena.yaml"
+    cele: Path = KATALOG_MC / "konfiguracja" / "cele.yaml"
 
     @classmethod
     def ze_srodowiska(cls) -> Ustawienia:

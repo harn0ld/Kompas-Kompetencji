@@ -9,9 +9,9 @@ konta:
 
 # ocena.czytaj daje podgląd procesów i kryteriów, ocena.tresc daje dostęp do treści ocen i wydruków.
 uprawnienia:
-  przelozony: [pracownicy.czytaj, notatki.czytaj, notatki.zapisz, ocena.prowadz, ocena.czytaj, ocena.tresc, rozwoj.propozycje, samoocena.czytaj]
-  hr: [pracownicy.czytaj, zrodla.panel, ocena.czytaj, metodyka.zarzadzaj, hr.panel, hr.przypomnienia]   # zrodla.panel, metodyka.zarzadzaj: #39; hr.*: #38
-  oceniany: [pracownicy.czytaj, ocena.czytaj, ocena.tresc, samoocena.zapisz]   # samoocena.*: #8, HR bez dostępu do treści
+  przelozony: [pracownicy.czytaj, notatki.czytaj, notatki.zapisz, ocena.prowadz, ocena.czytaj, ocena.tresc, rozwoj.propozycje, samoocena.czytaj, cele.czytaj, cele.proponuj, cele.zatwierdz]
+  hr: [pracownicy.czytaj, zrodla.panel, ocena.czytaj, metodyka.zarzadzaj, hr.panel, hr.przypomnienia, cele.czytaj]   # zrodla.panel, metodyka.zarzadzaj: #39; hr.*: #38
+  oceniany: [pracownicy.czytaj, ocena.czytaj, ocena.tresc, samoocena.zapisz, cele.czytaj, cele.proponuj]   # samoocena.*: #8, HR bez dostępu do treści; cele.*: #10, HR tylko odczyt
 
 # Przełożony widzi tylko swoich podwładnych, oceniany tylko siebie. HR nie ma reguły, więc widzi wszystkich.
 reguły_dostępu:

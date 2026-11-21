@@ -1,0 +1,25 @@
+# Cele rozwojowe pracownika (spec #2, ticket #10). Kod (kompas_mc/cele.py) czyta stąd przełącznik
+# i regułę; reguła ma adnotację sprawdzaną walidatorem (kompas-waliduj).
+
+# true: pracownik tworzy i zmienia swoje cele, a zmiana treści przywraca status „propozycja”.
+# false: cele tworzy i zmienia tylko przełożony. Akceptację zawsze daje przełożony.
+pracownik_moze_edytowac: true
+
+regula:
+  id: cele.akceptuje-przelozony
+  opis: >-
+    Cel rozwojowy należy do pracownika, nie do procesu oceny. Pracownik może go zaproponować,
+    ale zatwierdza, odrzuca z komentarzem i potwierdza osiągnięcie przełożony.
+  adnotacje:
+    - kategoria: PRZEPIS
+      doc_id: rozp-2016-okresowe
+      doc_version: "2016"
+      lokalizator: § 5 ust. 1 pkt 4
+      strona: 2
+      cytat_dosłowny: cele do osiągnięcia w okresie, w którym oceniany podlega ocenie
+    - kategoria: DECYZJA_PROJEKTOWA
+      uzasadnienie: >-
+        Rozporządzenie każe omówić cele w rozmowie rozpoczynającej okres oceny, ale nie opisuje,
+        kto je zapisuje i zmienia. Aplikacja daje pracownikowi głos (propozycja), a decyzję
+        zostawia przełożonemu, który prowadzi ocenę.
+      zatwierdził: Hubert Nowak (spec #2, ticket #10)

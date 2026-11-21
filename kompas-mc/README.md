@@ -105,6 +105,23 @@ Kontrakt jest w `/docs` (OpenAPI). Konta i uprawnienia zmienia się w `konfigura
 
   Sugestia nigdy nie wpisuje oceny sama.
 
+## Cele rozwojowe
+
+Cele należą do pracownika, nie do procesu oceny (rozp. 2016 § 5 ust. 1 pkt 4: cele omawia się w rozmowie na początku okresu). Uprawnienia: `cele.czytaj` (przełożony, oceniany, HR tylko odczyt), `cele.proponuj` (przełożony, oceniany), `cele.zatwierdz` (przełożony).
+
+- `GET /api/pracownicy/{osoba_id}/cele` zwraca cele osoby z historią zmian z dziennika: kto, kiedy, pole „przed” i „po”.
+- `POST /api/pracownicy/{osoba_id}/cele {"nazwa", "opis"?, "wskaznik_id"?, "miernik"?, "termin"?}`. Cel przełożonego jest od razu `zatwierdzony`, a cel pracownika ma status `propozycja`. Wskaźnik spoza modelu kompetencji daje 422.
+- `PUT /api/cele/{id}` zmienia treść. Zmiana pracownika przywraca `propozycja`, a przełożonego nie zmienia statusu. Celu `osiągnięty` ani `porzucony` nie zmienia nikt (409).
+- `POST /api/cele/{id}/zatwierdz` i `POST /api/cele/{id}/odrzuc {"komentarz"}` (przełożony, z `propozycja`). Odrzucenie wymaga komentarza.
+- `POST /api/cele/{id}/status {"status": "w_realizacji" | "osiągnięty" | "porzucony"}`:
+  - pracownik ustawia `w_realizacji` i zgłasza osiągnięcie (`zgloszono_osiagniecie`, status bez zmian);
+  - `osiągnięty` potwierdza przełożony, on też porzuca cel;
+  - zakazane przejście daje 409, a zmiana zastrzeżona dla przełożonego 403.
+- `GET /api/pracownicy/{osoba_id}/cele/podpowiedzi` daje najwyżej 3 propozycje ze wskaźników ocenionych poniżej oczekiwań w ostatniej ocenie sporządzonej na piśmie (krok ≥ 6; reguła `rozwoj.obszar-ponizej-oczekiwan`). Niczego nie zapisuje. Bez takiej oceny lista jest pusta, a odpowiedź zawiera komunikat.
+- `konfiguracja/cele.yaml`, `pracownik_moze_edytowac`:
+  - `true`: pracownik tworzy i zmienia swoje cele;
+  - `false`: robi to tylko przełożony, a pracownik dalej zgłasza postęp.
+
 ## Testy i walidator
 
 ```sh
