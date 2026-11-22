@@ -465,3 +465,46 @@ def test_hej_dostaje_model_z_rola_i_kartami_a_bez_modelu_zostaje_odmowa(asystent
         asystent.dostawcy = poprzedni
     assert dzieki.znaleziono and dzieki.cytaty[0].doc_id == "instrukcja-kompas"
     assert atrapa.zapytania[-1].pytanie == "dzięki"
+
+
+class _AtrapaOdmawia:
+    """Model w teście: nie wskazuje cytatu, chyba że pierwszym fragmentem jest karta instrukcji (``z_kart``)."""
+
+    nazwa = "atrapa"
+    model = "test"
+
+    def __init__(self, z_kart: bool):
+        from kompas_core.llm import Tryb
+
+        self.tryb = Tryb.NA_ZYWO
+        self.z_kart = z_kart
+
+    def odpowiedz(self, zapytanie):
+        from kompas_core.llm import Cytat, Odpowiedz
+
+        f = zapytanie.fragmenty[0]
+        if self.z_kart and f.doc_id == "instrukcja-kompas":
+            return Odpowiedz(cytaty=[Cytat(fragment_id=f.id, cytat=f.tekst[:60])], tresc="Proszę bardzo.")
+        return Odpowiedz(cytaty=[], tresc=None)
+
+
+def test_fragmenty_dobrane_po_slowach_rozstrzyga_model(asystent):
+    """Serwer 22.11: „dziękuję za pomoc” trafiało w słowo „pomoc”, model odrzucał fragmenty, a tryb bez
+    modelu i tak je pokazywał. Teraz rozstrzyga model z kartami; bez działającego modelu fragmenty zostają."""
+    pytanie = "dziękuję za pomoc"
+    bez_modelu = asystent.odpowiedz(pytanie)
+    assert bez_modelu.znaleziono and bez_modelu.faq_id is None and bez_modelu.tryb == "EKSTRAKCYJNE"
+
+    poprzedni = asystent.dostawcy
+    try:
+        asystent.dostawcy = [_AtrapaOdmawia(z_kart=False), *poprzedni]
+        odmowa = asystent.odpowiedz(pytanie)
+        asystent.dostawcy = [_AtrapaOdmawia(z_kart=True), *poprzedni]
+        z_karty = asystent.odpowiedz(pytanie)
+        przepis = asystent.odpowiedz("art. 83 ustawy", "okresowa")
+    finally:
+        asystent.dostawcy = poprzedni
+    assert not odmowa.znaleziono and not odmowa.cytaty
+    assert z_karty.znaleziono and z_karty.tresc == "Proszę bardzo." and z_karty.cytaty[0].doc_id == "instrukcja-kompas"
+    # Przepis wskazany w pytaniu zostaje, nawet gdy model nie wskaże cytatu.
+    assert przepis.znaleziono and przepis.cytaty and przepis.cytaty[0].doc_id == "ustawa-sc"

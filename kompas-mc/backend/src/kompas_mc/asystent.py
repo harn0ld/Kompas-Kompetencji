@@ -244,20 +244,41 @@ class Asystent:
             if ponownie.znaleziono:
                 return ponownie.model_copy(update={"pytanie": pytanie})
         if not wynik.znaleziono:
-            return self._model_decyduje(pytanie, sciezka, poprzednie) or wynik
+            return self._model_decyduje(pytanie, sciezka, poprzednie)[0] or wynik
+        if (
+            wynik.faq_id is None
+            and wynik.tryb == Tryb.EKSTRAKCYJNE
+            and wynik.odrzuceni
+            and not self._przepisy_ustawy(pytanie)
+        ):
+            # Fragmenty dobrane po słowach, których model nie potwierdził („dziękuję za pomoc” trafiało
+            # w słowo „pomoc” i dostawało przypadkowe fragmenty; serwer 22.11). Rozstrzyga model z kartami:
+            # odpowiedź, wyraźna odmowa (brak cytatów) albo, gdy model jest nieosiągalny, te fragmenty.
+            # ponytail: drugie wywołanie modelu; przy awarii dostawcy podwaja czas oczekiwania. Jeśli to
+            # zaboli, powód odrzucenia z pierwszego wywołania trzeba wynieść z core (WynikLlm).
+            odp, odmowil = self._model_decyduje(pytanie, sciezka, poprzednie)
+            if odp is not None:
+                return odp
+            if odmowil:
+                return OdpowiedzAsystenta(
+                    pytanie=pytanie, sciezka=sciezka, znaleziono=False, komunikat=self.konf.komunikat_brak
+                )
         return wynik
 
     def _model_decyduje(
         self, pytanie: str, sciezka: Sciezka | None, poprzednie: str | None
-    ) -> OdpowiedzAsystenta | None:
+    ) -> tuple[OdpowiedzAsystenta | None, bool]:
         """Karol 22.11: o odmowie nie decyduje lista słów. Gdy dopasowanie słów nic nie dało („hej”,
         „co możesz?”, pytanie innymi słowami), pytanie dostaje model razem z promptem głównym, kartami
         instrukcji aplikacji i najbliższymi fragmentami bazy. Odpowiedź przechodzi tylko z cytatem
-        sprawdzonym w core; pusta odpowiedź modelu albo brak modelu zostawia odmowę."""
+        sprawdzonym w core; pusta odpowiedź modelu albo brak modelu zostawia odmowę.
+
+        Zwraca odpowiedź (albo None) i znak, czy model wprost odmówił: odpowiedział, ale nie wskazał
+        żadnego cytatu. Błąd sieci, brak klucza albo zły cytat to nie odmowa."""
         dostawcy = [d for d in self.dostawcy if d.tryb != Tryb.EKSTRAKCYJNE]
         karty = [f for f in self._fragmenty if f.doc_id == self.konf.instrukcja]
         if not dostawcy or not karty:
-            return None
+            return None, False
         zapytanie = self._tresc(self._rozwin(pytanie)[0])
         ranking = self._ranking(zapytanie, set(self.korpus.doc_ids_dla(sciezka))) if zapytanie else []
         fragmenty = karty + [f for _, f in ranking if f.doc_id != self.konf.instrukcja][: self.konf.cytaty]
@@ -273,8 +294,8 @@ class Asystent:
                 dostawcy,
                 self.dziennik,
             )
-        except BrakOdpowiedzi:
-            return None
+        except BrakOdpowiedzi as e:
+            return None, any(w.odpowiedz is not None and not w.odpowiedz.cytaty for w in e.wpisy)
         po_id = {f.id: f for f in fragmenty}
         teksty: dict[str, str] = {}
         for c in wynik.odpowiedz.cytaty:
@@ -289,7 +310,7 @@ class Asystent:
             dostawca=wynik.dostawca,
             odrzuceni=wynik.odrzuceni,
             uwagi=[u for u in (self._kom("podsumowanie"), self._kom("sugestia")) if u],
-        )
+        ), False
 
     def _uprosc(self, tresc: str, fragmenty: list[Fragment]) -> str | None:
         """Ta sama odpowiedź prostym językiem. Instrukcja core każe składać tresc z cytatów, więc model
