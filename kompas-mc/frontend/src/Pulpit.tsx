@@ -315,7 +315,12 @@ export function Pulpit({
                   <button type="button" className="status pozytywna" onClick={() => onPracownicy({ ocena: "pozytywna" })}>
                     {ostatnia("pozytywna")} {odmiana(ostatnia("pozytywna"), "pozytywna", "pozytywne", "pozytywnych")}
                   </button>
-                  <button type="button" className="status negatywna" onClick={() => onPracownicy({ ocena: "negatywna" })}>
+                  {/* Zero negatywnych nie jest ostrzeżeniem: wtedy tło neutralne (zgłoszenie 221). */}
+                  <button
+                    type="button"
+                    className={`status ${ostatnia("negatywna") > 0 ? "negatywna" : "neutralna"}`}
+                    onClick={() => onPracownicy({ ocena: "negatywna" })}
+                  >
                     {ostatnia("negatywna")} {odmiana(ostatnia("negatywna"), "negatywna", "negatywne", "negatywnych")}
                   </button>
                   <button type="button" className="status neutralna" onClick={() => onPracownicy({ ocena: "brak" })}>
