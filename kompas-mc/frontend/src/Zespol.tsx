@@ -422,13 +422,13 @@ export function Zespol({
 
   return (
     <div className="widok zespol">
-      {wybor.departament && (
-        <button type="button" className="link wstecz" onClick={wroc}>
-          <Ikona nazwa="wstecz" rozmiar={20} />
-          Wróć
-        </button>
-      )}
       <div className="naglowek-widoku">
+        {wybor.departament && (
+          <button type="button" className="link wstecz" onClick={wroc}>
+            <Ikona nazwa="wstecz" rozmiar={20} />
+            Wróć
+          </button>
+        )}
         <div className="wiersz-tytulu">
           <h1>Zespół</h1>
           <button
