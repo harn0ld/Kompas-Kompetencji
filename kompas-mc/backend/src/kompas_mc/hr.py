@@ -152,7 +152,7 @@ def wiersz(proces: ProcesOceny, p: Pracownik, terminy: list[Termin], dzis: date)
         najblizszy_termin=t,
         dni_do_terminu=dni,
         zagrozony=(not zakonczony and dni is not None and dni <= PROG_ZAGROZONY_DNI),
-        komunikat=None if t or zakonczony else "Brak terminu: reguły terminów ścieżki (#32/#34).",
+        komunikat=None if t or zakonczony else "Brak terminu: brak danych do jego wyliczenia.",
     )
 
 
