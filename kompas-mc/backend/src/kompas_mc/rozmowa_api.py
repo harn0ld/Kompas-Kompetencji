@@ -6,10 +6,11 @@ import json
 
 from fastapi import APIRouter, HTTPException, Request
 from kompas_core.auth import Autoryzacja, Uzytkownik
-from kompas_core.llm import BrakOdpowiedzi, Zapytanie, wywolaj
+from kompas_core.llm import BrakOdpowiedzi, Tryb, Zapytanie, wywolaj
+from kompas_core.zrodla import Fragment, Kategoria
 from pydantic import BaseModel, Field
 
-from .asystent import OdpowiedzAsystenta, proponuje_ocene
+from .asystent import Asystent, CytatAsystenta, OdpowiedzAsystenta, proponuje_ocene
 from .krok2_api import StanKroku2
 from .metodyka import RejestrMetodyk
 from .ocena import zbuduj_stan
@@ -26,6 +27,101 @@ class PytanieCzatu(BaseModel):
 
 class OdpowiedzCzatu(OdpowiedzAsystenta):
     oznaczenie_sugestii: str
+    kwestie: list[str] = []
+    """Przygotowanie do rozmowy (#178): sprawy do omówienia z pracownikiem, każda oparta na cytowanym fragmencie."""
+    argumenty: list[str] = []
+    """Obserwacje z przebiegu tej oceny, które przełożony może przytoczyć w uzasadnieniu."""
+
+
+# Czat przygotowania (#178, zadanie MC: „wskazywanie kwestii wymagających omówienia czy pomoc w uporządkowaniu
+# argumentów uzasadniających ocenę”). Dane tej oceny są cytowalnymi fragmentami „ocena#…” (wskaźnik, wybrany opis
+# zachowania, przykłady, uwagi – lista dane_dla_modelu w rozmowa.yaml; bez punktów i bez danych identyfikujących).
+POLECENIE_PRZYGOTOWANIA = """Przygotuj przełożonego do rozmowy oceniającej i odpowiedz na jego pytanie.
+Fragmenty o ID zaczynającym się od "ocena#" to dane tej oceny: wskaźnik, zachowanie wybrane przez przełożonego,
+przykłady z okresu i uwagi. Pozostałe fragmenty to przepisy i poradniki. Korzystaj wyłącznie z fragmentów.
+W polu "tresc" zwróć tekst z obiektem JSON: {"kwestie": ["..."], "argumenty": ["..."]}
+"kwestie": 2–4 sprawy do omówienia z pracownikiem (np. czego brakuje do oczekiwanego zachowania, gdzie brak
+przykładu, co warto dopytać). "argumenty": 2–4 obserwacje z fragmentów "ocena#…", które przełożony może przytoczyć,
+uzasadniając ocenę. Każdy punkt to jedno krótkie zdanie; fragment, na którym się opiera, zacytuj w "cytaty".
+Nie proponuj punktów, poziomu ani wyniku oceny i nie wartościuj osoby: decyzja należy do przełożonego."""
+OPERACJA_PRZYGOTOWANIA = "asystent_przygotowanie"
+MAKS_PUNKTOW = 4
+
+
+def fragmenty_oceny(stan, pseudo: Pseudonimizator, osoba_id: str) -> list[Fragment]:
+    """Ocenione wskaźniki jako fragmenty do cytowania; bez punktów i etykiet poziomów, teksty po pseudonimizacji."""
+    wynik: list[Fragment] = []
+    for k in stan.kryteria:
+        for w in k.wskazniki:
+            o = w.ocena
+            if o is None:
+                continue
+            czesci = [f"Kryterium: {k.nazwa}. Wskaźnik: {w.nazwa}."]
+            opis = next((p.opis for p in w.poziomy if p.poziom == o.poziom), None)
+            czesci.append(f"Zachowanie wybrane przez przełożonego: {opis}" if opis else "Przełożony zaznaczył brak podstaw do oceny.")
+            czesci += [f"Przykład z okresu: {p.sytuacja} – {p.dzialanie} – {p.rezultat}" for p in o.przyklady]
+            if o.uwagi:
+                czesci.append(f"Uwagi przełożonego: {o.uwagi}")
+            wynik.append(Fragment(
+                id=f"ocena#{w.wskaznik_id}", doc_id="ocena", lokalizator=f"{k.nazwa} · {w.nazwa}",
+                tekst=pseudo.tekst(" ".join(czesci), osoba_id),
+            ))
+    return wynik
+
+
+def punkty_z_tresci(tresc: str | None) -> tuple[list[str], list[str]]:
+    """Kwestie i argumenty z JSON-u w „tresc” (instrukcja core każe składać tresc z cytatów, stąd JSON jak w #164)."""
+    try:
+        dane = json.loads((tresc or "").strip())
+    except ValueError:
+        return [], []
+    if not isinstance(dane, dict):
+        return [], []
+
+    def lista(klucz: str) -> list[str]:
+        v = dane.get(klucz)
+        return [str(x).strip() for x in v if str(x).strip()][:MAKS_PUNKTOW] if isinstance(v, list) else []
+
+    return lista("kwestie"), lista("argumenty")
+
+
+def przygotowanie(
+    asystent: Asystent, pytanie: str, sciezka, oceny: list[Fragment]
+) -> tuple[OdpowiedzAsystenta, list[str], list[str]] | None:
+    """Odpowiedź modelu z kwestiami i argumentami; None = model zawiódł albo podsunął ocenę (wtedy dotychczasowy czat)."""
+    dostawcy = [d for d in asystent.dostawcy if d.tryb != Tryb.EKSTRAKCYJNE]
+    if not dostawcy or not oceny:
+        return None
+    fragmenty = [*oceny, *asystent.fragmenty_przepisow(pytanie, sciezka)]
+    try:
+        wynik = wywolaj(Zapytanie(
+            operacja=OPERACJA_PRZYGOTOWANIA, prompt_wersja=asystent.konf.wersja,
+            pytanie=f"{POLECENIE_PRZYGOTOWANIA}\n\nPYTANIE PRZEŁOŻONEGO: {pytanie}", fragmenty=fragmenty,
+        ), dostawcy, asystent.dziennik)
+    except BrakOdpowiedzi:
+        return None
+    kwestie, argumenty = punkty_z_tresci(wynik.odpowiedz.tresc)
+    if not (kwestie or argumenty) or proponuje_ocene(" ".join([*kwestie, *argumenty])):
+        return None
+    po_id = {f.id: f for f in fragmenty}
+    cytaty: list[CytatAsystenta] = []
+    for c in wynik.odpowiedz.cytaty:
+        f = po_id[c.fragment_id]
+        if any(x.fragment_id == f.id for x in cytaty):
+            continue
+        cytaty.append(
+            CytatAsystenta(
+                fragment_id=f.id, doc_id=f.doc_id, dokument="Bieżąca ocena (dane z aplikacji)", lokalizator=f.lokalizator,
+                strona=None, kategoria=Kategoria.FUNKCJA_APLIKACJI, cytat=f.tekst, wyrozniony=c.cytat,
+            )
+            if f.doc_id == "ocena"
+            else asystent.cytat_fragmentu(f, pytanie)
+        )
+    odpowiedz = OdpowiedzAsystenta(
+        pytanie=pytanie, sciezka=sciezka, znaleziono=True, cytaty=cytaty, tryb=wynik.tryb, dostawca=wynik.dostawca,
+        odrzuceni=wynik.odrzuceni, pokrycie=1.0,
+    )
+    return odpowiedz, kwestie, argumenty
 
 
 # Podpowiedź przy wskaźniku (Karol 22.11, 02:04: „to ma być podpowiedź taka inteligentna AI”). Model dostaje
@@ -150,7 +246,16 @@ def router(
             "sciezka": proces.sciezka,
             "wybrane_wskazniki_poziomy_i_decyzje": stan.model_dump(mode="json"),
         }
-        kontekst = Pseudonimizator(qnt).json(surowy_kontekst, proces.osoba_id)
+        pseudo = Pseudonimizator(qnt)
+        przyg = przygotowanie(
+            request.app.state.asystent, body.pytanie, proces.sciezka, fragmenty_oceny(stan, pseudo, proces.osoba_id)
+        )
+        if przyg is not None:
+            odp, kwestie, argumenty = przyg
+            return OdpowiedzCzatu(
+                **odp.model_dump(), oznaczenie_sugestii=konf.oznaczenie_sugestii, kwestie=kwestie, argumenty=argumenty
+            )
+        kontekst = pseudo.json(surowy_kontekst, proces.osoba_id)
         odpowiedz = request.app.state.asystent.odpowiedz(
             body.pytanie, proces.sciezka, kontekst=kontekst
         )
