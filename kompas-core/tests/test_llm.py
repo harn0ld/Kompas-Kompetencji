@@ -278,3 +278,11 @@ def test_liczby_z_fragmentu_i_numery_listy_przechodza():
     odp = Odpowiedz(cytaty=[Cytat(fragment_id="ustawa#1", cytat="Odwołanie wnosi się w terminie 7 dni")],
                     tresc="1. Odwołanie wnosi się w ciągu 7 dni.\n2. Liczy się od zapoznania z oceną (art. 83).")
     assert sprawdz_odpowiedz(zapytanie(pytanie="art. 83 odwołanie"), odp) == []
+
+
+def test_tresc_jako_obiekt_json_jest_zapisana_jako_tekst():
+    """#176: DeepSeek przez Scaleway często zwraca „tresc” jako obiekt zamiast tekstu z JSON-em; odpowiedź
+    nie może przez to odpaść (opis osoby z modelem padał w 3 z 4 prób)."""
+    o = Odpowiedz.model_validate({"cytaty": [], "tresc": {"zdania": [{"tekst": "Zdanie.", "fakty": ["k1"]}]}})
+    assert json.loads(o.tresc) == {"zdania": [{"tekst": "Zdanie.", "fakty": ["k1"]}]}
+    assert Odpowiedz.model_validate({"cytaty": [], "tresc": "zwykły tekst"}).tresc == "zwykły tekst"

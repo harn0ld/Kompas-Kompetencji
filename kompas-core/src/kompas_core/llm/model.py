@@ -7,10 +7,11 @@ odrzucana i system przechodzi do następnego dostawcy (fallback).
 
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from enum import StrEnum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from ..zrodla.model import Fragment
 
@@ -57,6 +58,13 @@ class Odpowiedz(_Model):
     cytaty: list[Cytat]
     wybor: list[str] = Field(default_factory=list)
     tresc: str | None = None
+
+    @field_validator("tresc", mode="before")
+    @classmethod
+    def _tresc_obiekt_jako_tekst(cls, v: object) -> object:
+        # #176: modele często zwracają „tresc” jako obiekt JSON zamiast tekstu z JSON-em, o który prosi
+        # polecenie; zapisujemy go jako ten sam tekst JSON zamiast odrzucać całą odpowiedź.
+        return json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else v
 
 
 class WynikLlm(_Model):
