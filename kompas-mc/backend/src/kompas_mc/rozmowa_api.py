@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 
 from fastapi import APIRouter, HTTPException, Request
@@ -46,6 +47,9 @@ uzasadniając ocenę. Każdy punkt to jedno krótkie zdanie; fragment, na który
 Nie proponuj punktów, poziomu ani wyniku oceny i nie wartościuj osoby: decyzja należy do przełożonego."""
 OPERACJA_PRZYGOTOWANIA = "asystent_przygotowanie"
 MAKS_PUNKTOW = 4
+# Ogólne pytanie niesie dane wszystkich ocenionych wskaźników: model odpowiada w 12–15 s, czasem ponad 30 s
+# (serwer 22.11). ponytail: stały limit dla tej operacji; osobne pole w asystent.yaml, gdy będzie potrzeba.
+LIMIT_PRZYGOTOWANIA_S = 60
 
 
 def fragmenty_oceny(stan, pseudo: Pseudonimizator, osoba_id: str) -> list[Fragment]:
@@ -56,14 +60,15 @@ def fragmenty_oceny(stan, pseudo: Pseudonimizator, osoba_id: str) -> list[Fragme
             o = w.ocena
             if o is None:
                 continue
-            czesci = [f"Kryterium: {k.nazwa}. Wskaźnik: {w.nazwa}."]
+            kryterium = k.nazwa.capitalize()  # w modelu kompetencji wersaliki; na ekranie zdaniowo
+            czesci = [f"Kryterium: {kryterium}. Wskaźnik: {w.nazwa}."]
             opis = next((p.opis for p in w.poziomy if p.poziom == o.poziom), None)
             czesci.append(f"Zachowanie wybrane przez przełożonego: {opis}" if opis else "Przełożony zaznaczył brak podstaw do oceny.")
             czesci += [f"Przykład z okresu: {p.sytuacja} – {p.dzialanie} – {p.rezultat}" for p in o.przyklady]
             if o.uwagi:
                 czesci.append(f"Uwagi przełożonego: {o.uwagi}")
             wynik.append(Fragment(
-                id=f"ocena#{w.wskaznik_id}", doc_id="ocena", lokalizator=f"{k.nazwa} · {w.nazwa}",
+                id=f"ocena#{w.wskaznik_id}", doc_id="ocena", lokalizator=f"{kryterium} · {w.nazwa}",
                 tekst=pseudo.tekst(" ".join(czesci), osoba_id),
             ))
     return wynik
@@ -85,11 +90,20 @@ def punkty_z_tresci(tresc: str | None) -> tuple[list[str], list[str]]:
     return lista("kwestie"), lista("argumenty")
 
 
+def _z_limitem(d):
+    """Kopia dostawcy z dłuższym limitem czasu tylko dla przygotowania; asystent formalny zostaje przy swoim."""
+    if getattr(d, "timeout", None) is None or d.timeout >= LIMIT_PRZYGOTOWANIA_S:
+        return d
+    kopia = copy.copy(d)
+    kopia.timeout = LIMIT_PRZYGOTOWANIA_S
+    return kopia
+
+
 def przygotowanie(
     asystent: Asystent, pytanie: str, sciezka, oceny: list[Fragment]
 ) -> tuple[OdpowiedzAsystenta, list[str], list[str]] | None:
     """Odpowiedź modelu z kwestiami i argumentami; None = model zawiódł albo podsunął ocenę (wtedy dotychczasowy czat)."""
-    dostawcy = [d for d in asystent.dostawcy if d.tryb != Tryb.EKSTRAKCYJNE]
+    dostawcy = [_z_limitem(d) for d in asystent.dostawcy if d.tryb != Tryb.EKSTRAKCYJNE]
     if not dostawcy or not oceny:
         return None
     fragmenty = [*oceny, *asystent.fragmenty_przepisow(pytanie, sciezka)]

@@ -450,3 +450,15 @@ def test_czat_przygotowania_nie_podsuwa_oceny(klient, naglowek):
     odp, zapytania = _czat_z_atrapa(klient, naglowek, tresc)
     assert odp["kwestie"] == [] and odp["argumenty"] == []
     assert any(z.operacja == "asystent_formalny" for z in zapytania)
+
+
+def test_przygotowanie_ma_dluzszy_limit_czasu_niz_asystent():
+    """Zgłoszenie 181: ogólne pytanie z danymi wszystkich wskaźników potrafi przekroczyć 30 s; przygotowanie
+    dostaje 60 s na kopii dostawcy, a dostawca asystenta formalnego zostaje bez zmian."""
+    from kompas_core.llm import OpenAiZgodny
+
+    from kompas_mc.rozmowa_api import LIMIT_PRZYGOTOWANIA_S, _z_limitem
+
+    d = OpenAiZgodny(base_url="https://example.invalid/v1", model="m", zmienna_klucza="X", timeout=30)
+    k = _z_limitem(d)
+    assert k.timeout == LIMIT_PRZYGOTOWANIA_S == 60 and d.timeout == 30
