@@ -318,3 +318,41 @@ def test_parafrazy_pomiar(asystent):
     print(f"\nparafrazy: {n - len(chybione)}/{n}; chybione: {chybione}; "
           f"spoza bazy odrzucone: {odrzucone}/{len(PARAFRAZY['spoza_bazy'])}")
     assert n - len(chybione) >= MIN_PARAFRAZ
+
+
+def test_dopytanie_odnosi_sie_do_poprzedniego_pytania(asystent):
+    """Karol 22.11 (wzór czatu STAGO): „a prościej?” po pytaniu o rozmowę wstępną nie kończy się brakiem źródła."""
+    pierwsze = "Kiedy przeprowadza się rozmowę wstępną?"
+    assert not asystent.odpowiedz("a prościej?", "pierwsza").znaleziono
+    odp = asystent.odpowiedz("a prościej?", "pierwsza", poprzednie=pierwsze)
+    assert odp.znaleziono and odp.pytanie == "a prościej?" and odp.cytaty
+
+
+class _AtrapaUproszczenia:
+    """Model w teście: przy uproszczeniu zwraca JSON z prostą wersją, cytat z pierwszego fragmentu."""
+
+    nazwa = "atrapa"
+    model = "test"
+
+    def __init__(self):
+        from kompas_core.llm import Tryb
+
+        self.tryb = Tryb.NA_ZYWO
+
+    def odpowiedz(self, zapytanie):
+        from kompas_core.llm import Cytat, Odpowiedz
+
+        f = zapytanie.fragmenty[0]
+        tresc = '{"odpowiedz": "Rozmowę wstępną robisz na początku pracy nowej osoby."}'
+        return Odpowiedz(cytaty=[Cytat(fragment_id=f.id, cytat=f.tekst[:40])], tresc=tresc)
+
+
+def test_prosciej_przepisuje_odpowiedz_przez_model(asystent):
+    poprzedni = asystent.dostawcy
+    asystent.dostawcy = [_AtrapaUproszczenia()]
+    try:
+        odp = asystent.odpowiedz("a prościej?", "pierwsza", poprzednie="Kiedy przeprowadza się rozmowę wstępną?")
+    finally:
+        asystent.dostawcy = poprzedni
+    assert odp.tresc == "Rozmowę wstępną robisz na początku pracy nowej osoby."
+    assert any("Prostsza wersja" in u for u in odp.uwagi)

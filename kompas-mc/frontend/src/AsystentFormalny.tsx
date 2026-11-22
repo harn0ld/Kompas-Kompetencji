@@ -53,7 +53,9 @@ export default function AsystentFormalny({ sciezka, przyklady = [], pytanieZZewn
     setPytanie("");
     setCzekam(true);
     try {
-      const odp = await pytajAsystenta(t, aktywna);
+      // Jak historia czatu w STAGO: dopytanie idzie razem z ostatnim pytaniem, na które była odpowiedź.
+      const poprzednie = [...rozmowa].reverse().find((w) => w.odpowiedz?.znaleziono)?.pytanie;
+      const odp = await pytajAsystenta(t, aktywna, poprzednie);
       setRozmowa((r) => r.map((w) => (w.id === id ? { ...w, odpowiedz: odp } : w)));
     } catch (err) {
       setRozmowa((r) => r.map((w) => (w.id === id ? { ...w, blad: String(err) } : w)));
@@ -150,6 +152,7 @@ export default function AsystentFormalny({ sciezka, przyklady = [], pytanieZZewn
 }
 
 function Odpowiedz({ o }: { o: OdpowiedzAsystenta }) {
+  const [szczegoly, setSzczegoly] = useState(false);
   if (!o.znaleziono) {
     return (
       <div className="brak">
@@ -167,20 +170,29 @@ function Odpowiedz({ o }: { o: OdpowiedzAsystenta }) {
   }
   return (
     <div className="odpowiedz">
-      {o.faq_id && o.tresc && <p className="tresc">{o.tresc}</p>}
+      {(o.faq_id || o.uproszczona) && o.tresc && <p className="tresc">{o.tresc}</p>}
       {o.cytaty.map((c, i) => (
         <Cytat key={c.fragment_id} c={c} glowny={i === 0} />
       ))}
-      <ul className="uwagi">
-        {o.uwagi.map((u) => (
-          <li key={u}>{u}</li>
-        ))}
-      </ul>
-      <p className="meta">
-        Tryb: {o.tryb} · dostawca: {o.dostawca}
-        {o.faq_id && <> · {o.faq_id}</>}
-        {o.odrzuceni.length > 0 && <> · odrzuceni: {o.odrzuceni.join(", ")}</>}
-      </p>
+      {/* Jedno zastrzeżenie na wierzchu; reszta uwag i dane techniczne po rozwinięciu (Karol 22.11: mniej dopisków). */}
+      {o.uwagi[0] && <p className="meta">{o.uwagi[0]}</p>}
+      <button type="button" className="link" aria-expanded={szczegoly} onClick={() => setSzczegoly((v) => !v)}>
+        {szczegoly ? "Ukryj szczegóły" : "Jak powstała odpowiedź"}
+      </button>
+      {szczegoly && (
+        <div className="meta">
+          <ul className="uwagi">
+            {o.uwagi.slice(1).map((u) => (
+              <li key={u}>{u}</li>
+            ))}
+          </ul>
+          <p>
+            Tryb: {o.tryb} · dostawca: {o.dostawca}
+            {o.faq_id && <> · {o.faq_id}</>}
+            {o.odrzuceni.length > 0 && <> · odrzuceni: {o.odrzuceni.join(", ")}</>}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

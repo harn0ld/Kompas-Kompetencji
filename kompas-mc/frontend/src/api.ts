@@ -27,6 +27,8 @@ export interface OdpowiedzAsystenta {
   pokrycie: number;
   /** Pozycja z przygotowanego zestawu pytań i odpowiedzi (faq.yaml), jeśli z niej odpowiedź. */
   faq_id: string | null;
+  /** Treść przepisana prostym językiem przez model na prośbę „prościej”. */
+  uproszczona?: boolean;
   nieznane_pojecia: string[];
   uwagi: string[];
 }
@@ -48,11 +50,12 @@ export const pobierzZrodla = () => fetch("/api/zrodla").then((r) => json<Zrodla>
 export const KLUCZ_SESJI = "kompas-mc-sesja";
 const tokenSesji = () => (JSON.parse(sessionStorage.getItem(KLUCZ_SESJI) ?? "null") as { token?: string } | null)?.token ?? "";
 
-export const pytajAsystenta = (pytanie: string, sciezka: Sciezka | null) =>
+/** `poprzednie`: ostatnie pytanie z okna asystenta, żeby dopytanie („a prościej?”) miało do czego się odnieść. */
+export const pytajAsystenta = (pytanie: string, sciezka: Sciezka | null, poprzednie?: string) =>
   fetch("/api/asystent", {
     method: "POST",
     headers: { "content-type": "application/json", ...autoryzacja(tokenSesji()) },
-    body: JSON.stringify({ pytanie, sciezka }),
+    body: JSON.stringify({ pytanie, sciezka, poprzednie: poprzednie ?? null }),
   }).then((r) => json<OdpowiedzAsystenta>(r));
 
 export type Rola = "przelozony" | "hr" | "oceniany";

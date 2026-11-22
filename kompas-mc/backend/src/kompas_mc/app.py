@@ -66,6 +66,8 @@ from .zespol_api import router as router_zespolu
 class PytanieAsystenta(BaseModel):
     pytanie: str = Field(min_length=1, max_length=1000)
     sciezka: Sciezka | None = None
+    poprzednie: str | None = Field(default=None, max_length=1000)
+    """Ostatnie pytanie z okna asystenta: dopytanie („a prościej?”) odnosi się do niego."""
 
 
 LIMIT_ASYSTENTA, LIMIT_ASYSTENTA_S = 40, 600  # pytań na konto w oknie 10 minut
@@ -232,7 +234,7 @@ def utworz_aplikacje(ustawienia: Ustawienia | None = None) -> FastAPI:
                 kolejka.append(teraz)
         if przekroczony:
             raise HTTPException(429, f"Limit pytań do asystenta: {LIMIT_ASYSTENTA} na {LIMIT_ASYSTENTA_S // 60} minut. Spróbuj za chwilę.")
-        wynik = request.app.state.asystent.odpowiedz(body.pytanie, body.sciezka)
+        wynik = request.app.state.asystent.odpowiedz(body.pytanie, body.sciezka, poprzednie=body.poprzednie)
         # Rejestr operacji: tryb i dostawca odpowiedzi oraz wynik walidacji cytatów, bez treści pytania i odpowiedzi.
         ustaw_szczegoly(
             request, tryb=wynik.tryb, dostawca=wynik.dostawca, odrzuceni=wynik.odrzuceni,
