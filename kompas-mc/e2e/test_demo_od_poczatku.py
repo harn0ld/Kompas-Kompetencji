@@ -1,6 +1,6 @@
 """Test Playwright (#186): „Rozpocznij od początku” na pulpicie przełożonego dla osób demo.
 
-Przycisk jest tylko przy Annie Zielińskiej-Demo (ocena okresowa) i Zofii Szymańskiej-Demo (pierwsza ocena).
+Mały przycisk „Demo: rozpocznij od początku” w linii imienia jest tylko przy Annie Zielińskiej-Demo (ocena okresowa) i Zofii Szymańskiej-Demo (pierwsza ocena).
 Po potwierdzeniu proces Anny znika z bazy, a wiersz wraca do pierwszego etapu. Test sam zakłada proces
 przez API, więc działa na świeżej bazie i po innych testach. Uruchomienie i zmienne jak w test_samoocena.py.
 """
@@ -52,24 +52,27 @@ def test_rozpocznij_od_poczatku_kasuje_proces_osoby_demo(przegladarka):
     page.keyboard.press("Enter")
     page.wait_for_selector(".pulpit .lista .pozycja")
 
-    przyciski = page.get_by_role("button", name="Rozpocznij od początku")
-    anna = page.locator(".pulpit-wiersz-demo", has_text="Anna Zielińska-Demo")
+    przyciski = page.get_by_role("button", name="Demo: rozpocznij od początku")
+    anna = page.locator(".pozycja.z-akcja", has_text="Anna Zielińska-Demo")
     expect(anna).to_have_count(1)
-    expect(page.locator(".pulpit-wiersz-demo", has_text="Zofia Szymańska-Demo")).to_have_count(1)
-    expect(przyciski).to_have_count(page.locator(".pulpit-wiersz-demo").count())
+    expect(page.locator(".pozycja.z-akcja", has_text="Zofia Szymańska-Demo")).to_have_count(1)
+    expect(przyciski).to_have_count(page.locator(".pozycja.z-akcja").count())
 
-    # Przycisk w wierszu nie zasłania tekstu i nie otwiera karty osoby.
-    wiersz = anna.locator("button.pozycja").bounding_box()
-    przycisk = anna.get_by_role("button", name="Rozpocznij od początku").bounding_box()
-    opis = anna.locator(".pozycja-srodek").bounding_box()
-    assert wiersz["y"] <= przycisk["y"] and przycisk["y"] + przycisk["height"] <= wiersz["y"] + wiersz["height"]
-    assert opis["y"] + opis["height"] <= przycisk["y"], "przycisk pod opisem, nie na tekście"
-    assert przycisk["x"] + przycisk["width"] < wiersz["x"] + wiersz["width"] - 48, "przycisk nie zachodzi na strzałkę"
+    # Mały przycisk w linii imienia, za plakietką terminu; wiersz osoby demo nie jest wyższy od zwykłego.
+    przycisk = anna.get_by_role("button", name="Demo: rozpocznij od początku").bounding_box()
+    imie = anna.get_by_role("button", name="Anna Zielińska-Demo").bounding_box()
+    plakietka = anna.locator(".status").bounding_box()
+    assert plakietka["x"] + plakietka["width"] <= przycisk["x"], "przycisk za plakietką"
+    srodek = przycisk["y"] + przycisk["height"] / 2
+    assert imie["y"] <= srodek <= imie["y"] + imie["height"], "przycisk w linii imienia"
+    assert przycisk["height"] <= 32
+    zwykly = page.locator(".pulpit .lista button.pozycja").first.bounding_box()
+    assert anna.bounding_box()["height"] <= zwykly["height"] + 2, "wiersz demo tej samej wysokości"
 
     page.once("dialog", lambda d: d.accept())
-    anna.get_by_role("button", name="Rozpocznij od początku").click()
+    anna.get_by_role("button", name="Demo: rozpocznij od początku").click()
     expect(page.get_by_role("status")).to_contain_text("Anna Zielińska-Demo: ocenę okresową zaczynasz od pierwszego etapu")
-    expect(page.locator(".pulpit-wiersz-demo", has_text="Anna Zielińska-Demo")).to_be_visible()
+    expect(page.locator(".pozycja.z-akcja", has_text="Anna Zielińska-Demo")).to_be_visible()
     expect(page.locator(".powloka .karta, .karta-pracownika")).to_have_count(0)
     assert not any(p["osoba_id"] == "P-101" for p in _api("GET", "/api/procesy", token)[1])
     page.close()

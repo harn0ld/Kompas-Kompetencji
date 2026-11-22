@@ -88,11 +88,14 @@ button.pulpit-wiecej { align-self: flex-start; min-height: 44px; text-align: lef
 .pulpit-cele .status.wyciszona { background: none; color: var(--k-text-muted); border: 1px solid var(--k-line); }
 .pulpit-ostatnia { display: flex; align-items: center; gap: var(--o-12); margin: 0; }
 
-/* Demo (#186): „Rozpocznij od początku” w wierszu osoby demo, pod opisem (wyrównany do tekstu); wiersz rezerwuje
-   na niego miejsce na dole, więc nic nie zachodzi na tekst ani strzałkę przy żadnej szerokości. */
-.pulpit-wiersz-demo { position: relative; }
-.lista .pulpit-wiersz-demo > button.pozycja { padding-bottom: calc(var(--o-16) + var(--c-action) + var(--o-12)); }
-.pulpit-wiersz-demo > button.pulpit-od-poczatku {
-  position: absolute; left: calc(var(--o-16) + 40px + var(--o-12)); bottom: var(--o-16);
-  background: var(--k-surface); border: 1px solid var(--k-line);
+/* Demo (#186): mały przycisk „Demo: rozpocznij od początku” w linii imienia, wysokości plakietki terminu. */
+.pozycja-akcja button.pulpit-od-poczatku {
+  min-height: 22px; padding: var(--o-2) var(--o-8); border: 1px solid var(--k-line); border-radius: var(--r-xs);
+  background: var(--k-surface); color: var(--k-link);
+  font-size: var(--t-micro-r); line-height: var(--t-micro-l); font-weight: var(--f-medium);
+}
+.pozycja-akcja button.pulpit-od-poczatku:disabled { color: var(--k-disabled-text); }
+.pozycja-akcja button.pulpit-od-poczatku:active { background: var(--k-wiersz-pressed); }
+@media (hover: hover) and (pointer: fine) {
+  .pozycja-akcja button.pulpit-od-poczatku:not(:disabled):hover { background: var(--k-wiersz-hover); }
 }
