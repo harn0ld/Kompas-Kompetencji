@@ -37,17 +37,18 @@ class OdpowiedzCzatu(OdpowiedzAsystenta):
 # Czat przygotowania (#178, zadanie MC: „wskazywanie kwestii wymagających omówienia czy pomoc w uporządkowaniu
 # argumentów uzasadniających ocenę”). Dane tej oceny są cytowalnymi fragmentami „ocena#…” (wskaźnik, wybrany opis
 # zachowania, przykłady, uwagi – lista dane_dla_modelu w rozmowa.yaml; bez punktów i bez danych identyfikujących).
-POLECENIE_PRZYGOTOWANIA = """Przygotuj przełożonego do rozmowy oceniającej i odpowiedz na jego pytanie.
-Fragmenty o ID zaczynającym się od "ocena#" to dane tej oceny: wskaźnik, zachowanie wybrane przez przełożonego,
-przykłady z okresu i uwagi. Pozostałe fragmenty to przepisy i poradniki. Korzystaj wyłącznie z fragmentów.
+POLECENIE_PRZYGOTOWANIA = """Przygotuj przełożonego do rozmowy oceniającej: zwięźle, jasno, tylko meritum.
+Fragmenty o ID zaczynającym się od "ocena#" to dane tej oceny (wskaźnik, zachowanie wybrane przez przełożonego,
+przykłady z okresu, uwagi); pozostałe to przepisy i poradniki. Korzystaj wyłącznie z fragmentów.
 W polu "tresc" zwróć tekst z obiektem JSON: {"kwestie": ["..."], "argumenty": ["..."]}
-"kwestie": 2–4 sprawy do omówienia z pracownikiem (np. czego brakuje do oczekiwanego zachowania, gdzie brak
-przykładu, co warto dopytać). "argumenty": 2–4 obserwacje z fragmentów "ocena#…", które przełożony może przytoczyć,
-uzasadniając ocenę. Każdy punkt to jedno krótkie zdanie; fragment, na którym się opiera, zacytuj w "cytaty".
-Liczby i daty przepisuj wyłącznie z fragmentów, które cytujesz; nie podawaj numerów przepisów ani liczb spoza nich.
+"kwestie": najwyżej 3 sprawy do omówienia, wynikające wprost z danych oceny: czego brakuje do oczekiwanego
+zachowania, gdzie nie ma przykładu albo podstaw do oceny. "argumenty": najwyżej 3 obserwacje z fragmentów
+"ocena#…", które przełożony może przytoczyć. Każdy punkt to jedno krótkie zdanie (do 20 słów) o tym, o co pytał
+przełożony. Bez ogólnych porad, szkoleń, planów rozwoju i powtórzeń. Fragment, na którym opiera się punkt,
+zacytuj w "cytaty". Liczby i daty przepisuj wyłącznie z cytowanych fragmentów.
 Nie proponuj punktów, poziomu ani wyniku oceny i nie wartościuj osoby: decyzja należy do przełożonego."""
 OPERACJA_PRZYGOTOWANIA = "asystent_przygotowanie"
-MAKS_PUNKTOW = 4
+MAKS_PUNKTOW = 3  # Karol 22.11 09:16: zwięźle, meritum
 # Ogólne pytanie niesie dane wszystkich ocenionych wskaźników: model odpowiada w 12–15 s, czasem ponad 30 s
 # (serwer 22.11). ponytail: stały limit dla tej operacji; osobne pole w asystent.yaml, gdy będzie potrzeba.
 LIMIT_PRZYGOTOWANIA_S = 60

@@ -99,16 +99,21 @@ function OdpowiedzCzatu({ odpowiedz }: { odpowiedz: OdpowiedzCzatuRozmowy }) {
           </ul>
         </div>
       )}
-      {odpowiedz.cytaty.map((cytat) => (
-        <article className="cytat" key={cytat.fragment_id}>
-          <div className="zrodlo">
-            <strong>{cytat.dokument}</strong>
-            {cytat.lokalizator && <> · {cytat.lokalizator}</>}
-            {cytat.strona && <> · s. {cytat.strona}</>}
-          </div>
-          <blockquote>{cytat.wyrozniony || cytat.cytat}</blockquote>
-        </article>
-      ))}
+      {/* Karol 22.11 09:16: krótka odpowiedź, a pod nią źródła z możliwością rozwinięcia. Bez listy punktów
+          (stara ścieżka) cytaty są odpowiedzią, więc zostają rozwinięte. */}
+      <details className="zrodla-odpowiedzi" open={!(odpowiedz.kwestie?.length || odpowiedz.argumenty?.length)}>
+        <summary>Źródła ({odpowiedz.cytaty.length})</summary>
+        {odpowiedz.cytaty.map((cytat) => (
+          <article className="cytat" key={cytat.fragment_id}>
+            <div className="zrodlo">
+              <strong>{cytat.dokument}</strong>
+              {cytat.lokalizator && <> · {cytat.lokalizator}</>}
+              {cytat.strona && <> · s. {cytat.strona}</>}
+            </div>
+            <blockquote>{cytat.wyrozniony || cytat.cytat}</blockquote>
+          </article>
+        ))}
+      </details>
       <p className="meta">
         Tryb: {odpowiedz.tryb} · dostawca: {odpowiedz.dostawca}
       </p>
