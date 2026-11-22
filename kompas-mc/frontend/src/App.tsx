@@ -11,7 +11,7 @@ import { Pierwsza } from "./Pierwsza";
 import PanelMetodyki from "./PanelMetodyki";
 import PanelHR from "./PanelHR";
 import Rejestr from "./Rejestr";
-import { pobierzWynik, type Pracownik, type ProcesOceny } from "./api";
+import { pobierzPracownikow, pobierzWynik, type Pracownik, type ProcesOceny } from "./api";
 import PanelZrodel from "./PanelZrodel";
 import { Powloka, type Widok } from "./Powloka";
 import { Pulpit } from "./Pulpit";
@@ -95,6 +95,24 @@ export default function App() {
   useEffect(() => {
     pobierzZrodla().then(setZrodla).catch(() => setBlad("Brak połączenia z API (port 8002)."));
   }, []);
+
+  // „Twoje dane” pracownika (#183): od razu własna karta, bez tabeli z jednym wierszem.
+  const pracownik = sesja?.uzytkownik.rola === "oceniany";
+  useEffect(() => {
+    if (!sesja || !pracownik || widok !== "pracownicy" || karta) return;
+    let aktualne = true;
+    pobierzPracownikow(sesja.token)
+      .then((lista) => {
+        if (!aktualne) return;
+        const ja = lista.find((p) => p.osoba_id === sesja.uzytkownik.osoba_id);
+        if (ja) setKarta(ja);
+        else setBlad("Nie znaleziono Twoich danych.");
+      })
+      .catch((err) => (String(err).includes("401") ? wyloguj() : setBlad("Nie udało się pobrać Twoich danych.")));
+    return () => {
+      aktualne = false;
+    };
+  }, [sesja, pracownik, widok, karta, wyloguj]);
 
   if (!sesja) {
     return (
@@ -224,12 +242,12 @@ export default function App() {
         <KartaPracownika
           sesja={sesja}
           osoba={karta}
-          onWroc={() => setKarta(null)}
+          onWroc={() => (pracownik ? przejdz("pulpit") : setKarta(null))}
           onOcen={(p, e) => otworzProces(karta, p, e)}
           onSamoocena={setSamoocena}
           onZapytaj={zapytajAsystenta}
           onWyloguj={wyloguj}
-          cele={<CeleOsoby sesja={sesja} osoba={karta} maks={3} />}
+          cele={<CeleOsoby sesja={sesja} osoba={karta} maks={pracownik ? undefined : 3} />}
         />
       )}
       {!karta && !oceniany && widokZrodel && <h1 className="tytul-widoku">Źródła i braki</h1>}
@@ -251,7 +269,7 @@ export default function App() {
       )}
       {!karta && !oceniany && widok === "zespol" && <Zespol sesja={sesja} onWyloguj={wyloguj} onPracownicy={doPracownikow} onWybierz={setKarta} />}
       {!karta && !oceniany && widok === "cele" && <Cele sesja={sesja} onWyloguj={wyloguj} />}
-      {!karta && !oceniany && widok === "pracownicy" && (
+      {!karta && !oceniany && !pracownik && widok === "pracownicy" && (
         <ListaPracownikow sesja={sesja} filtr={filtr} onFiltr={setFiltr} onWyloguj={wyloguj} onWybierz={setKarta} />
       )}
     </Powloka>
