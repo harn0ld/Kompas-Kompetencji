@@ -55,6 +55,19 @@ button.ikona-przycisk:active { background: var(--k-wiersz-pressed); }
 .pozycja-opis { color: var(--k-text-muted); }
 .pozycja-prawa { flex: none; text-align: right; color: var(--k-text-muted); font-size: var(--t-small-r); line-height: var(--t-small-l); }
 .pozycja-strzalka { flex: none; color: var(--k-link); display: grid; }
+/* Wiersz z akcją w linii tytułu (#186): przycisk tytułu wygląda jak tekst i ::after rozciąga go na cały wiersz. */
+.pozycja.z-akcja { position: relative; }
+.pozycja.z-akcja button.pozycja-glowny {
+  min-height: 0; padding: 0; border: 0; border-radius: 0; background: none; color: inherit;
+  font: inherit; font-weight: inherit; text-align: left; white-space: normal;
+}
+.pozycja.z-akcja button.pozycja-glowny::after { content: ""; position: absolute; inset: 0; border-radius: var(--r-wiersz); }
+.pozycja.z-akcja button.pozycja-glowny:focus-visible { outline: none; }
+.pozycja.z-akcja button.pozycja-glowny:focus-visible::after { outline: 2px solid var(--k-focus); outline-offset: 2px; }
+.pozycja.z-akcja:has(button.pozycja-glowny:active) { background: var(--k-wiersz-pressed); }
+.pozycja.z-akcja button.pozycja-glowny:active,
+.pozycja.z-akcja button.pozycja-glowny:not(:disabled):hover { background: none; }
+.pozycja-akcja { position: relative; z-index: 1; display: inline-flex; margin-left: var(--o-4); }
 .pozycja.szkielet { min-height: 88px; animation: szkielet 1.2s ease-in-out infinite alternate; }
 @keyframes szkielet { from { opacity: 1; } to { opacity: 0.5; } }
 
@@ -183,6 +196,7 @@ td { padding: var(--o-12); border-bottom: 1px solid var(--k-line-subtle); text-a
   .menu button.poz[aria-current="page"]:not(:disabled):hover { background: var(--k-wiersz-hover); }
   button.ikona-przycisk:not(:disabled):hover { background: var(--k-wiersz); }
   .lista button.pozycja:not(:disabled):hover { background: var(--k-wiersz-hover); }
+  .lista .pozycja.z-akcja:hover { background: var(--k-wiersz-hover); }
 }
 @media (max-width: 1279px) {
   .powloka { grid-template-columns: 72px minmax(0, 1fr); }

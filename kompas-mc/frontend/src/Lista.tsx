@@ -1,11 +1,16 @@
 import type { ReactNode } from "react";
 import { Ikona } from "./Ikona";
 
-/** Wiersz listy jak w mObywatelu: jasne tło (--k-wiersz), ikona albo inicjały z lewej, strzałka z prawej. */
+/**
+ * Wiersz listy jak w mObywatelu: jasne tło (--k-wiersz), ikona albo inicjały z lewej, strzałka z prawej.
+ * ``akcja`` to mały przycisk w linii tytułu, za znacznikiem (#186). Przycisk w przycisku jest niedozwolony, więc
+ * wtedy wiersz jest blokiem, a klikalny cały obszar daje przycisk tytułu rozciągnięty na wiersz (::after).
+ */
 export function WierszListy({
   lewa,
   tytul,
   znacznik,
+  akcja,
   opis,
   prawa,
   onClick,
@@ -14,18 +19,27 @@ export function WierszListy({
   lewa?: ReactNode;
   tytul: ReactNode;
   znacznik?: ReactNode;
+  akcja?: ReactNode;
   opis?: ReactNode;
   prawa?: ReactNode;
   onClick?: () => void;
   maly?: boolean;
 }) {
+  const zAkcja = Boolean(akcja && onClick);
   const tresc = (
     <>
       {lewa && <span className="pozycja-lewa">{lewa}</span>}
       <span className="pozycja-srodek">
         <span className="pozycja-tytul">
-          {tytul}
+          {zAkcja ? (
+            <button type="button" className="pozycja-glowny" onClick={onClick}>
+              {tytul}
+            </button>
+          ) : (
+            tytul
+          )}
           {znacznik}
+          {akcja && <span className="pozycja-akcja">{akcja}</span>}
         </span>
         {opis && <span className="pozycja-opis">{opis}</span>}
       </span>
@@ -38,6 +52,7 @@ export function WierszListy({
     </>
   );
   const klasa = `pozycja ${maly ? "mala" : ""}`;
+  if (zAkcja) return <div className={`${klasa} z-akcja`}>{tresc}</div>;
   return onClick ? (
     <button type="button" className={klasa} onClick={onClick}>
       {tresc}

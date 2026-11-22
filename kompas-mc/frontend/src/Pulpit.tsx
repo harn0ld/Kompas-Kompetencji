@@ -255,30 +255,29 @@ export function Pulpit({
           {lista && lista.length > 0 && (
             <div className="lista">
               {(skrocona ? lista.slice(0, NA_START) : lista).map((s) => {
-                const wiersz = (
+                // Demo (#186): mały przycisk w linii imienia, za plakietką terminu; wiersz nie rośnie.
+                const demo = rola === "przelozony" && s.osoba.demo_od_poczatku;
+                return (
                   <WierszListy
                     key={s.osoba.osoba_id}
                     lewa={<Inicjaly imie={s.osoba.imie} nazwisko={s.osoba.nazwisko} />}
                     tytul={`${s.osoba.imie} ${s.osoba.nazwisko}`}
                     znacznik={<Plakietka e={s.e} />}
+                    akcja={
+                      demo && (
+                        <button
+                          type="button"
+                          className="pulpit-od-poczatku"
+                          disabled={resetowana !== null}
+                          onClick={() => odPoczatku(s.osoba)}
+                        >
+                          {resetowana === s.osoba.osoba_id ? "Demo: zaczynam od nowa…" : "Demo: rozpocznij od początku"}
+                        </button>
+                      )
+                    }
                     opis={opisCzynnosci(s.e, zespol)}
                     onClick={() => onWybierz(s.osoba)}
                   />
-                );
-                // Demo (#186): przycisk obok wiersza, nie w nim (przycisk w przycisku jest niedozwolony).
-                if (rola !== "przelozony" || !s.osoba.demo_od_poczatku) return wiersz;
-                return (
-                  <div key={s.osoba.osoba_id} className="pulpit-wiersz-demo">
-                    {wiersz}
-                    <button
-                      type="button"
-                      className="jasny pulpit-od-poczatku"
-                      disabled={resetowana !== null}
-                      onClick={() => odPoczatku(s.osoba)}
-                    >
-                      {resetowana === s.osoba.osoba_id ? "Zaczynam od nowa…" : "Rozpocznij od początku"}
-                    </button>
-                  </div>
                 );
               })}
             </div>
