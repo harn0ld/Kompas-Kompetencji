@@ -268,6 +268,11 @@ export default function App() {
           onZespol={() => przejdz("zespol")}
           onPracownicy={doPracownikow}
           onCele={() => przejdz("cele")}
+          onOdPoczatku={(p) => {
+            // Demo (#208): bez procesu otwiera się krok 1 („Rozpoczęcie oceny”); „Wróć” prowadzi do karty.
+            setKarta(p);
+            otworzProces(p, null);
+          }}
         />
       )}
       {!karta && !oceniany && widok === "zespol" && <Zespol sesja={sesja} onWyloguj={wyloguj} onPracownicy={doPracownikow} onWybierz={setKarta} />}

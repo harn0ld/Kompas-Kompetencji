@@ -1,7 +1,7 @@
 """Test Playwright (#186): „Rozpocznij od początku” na pulpicie przełożonego dla osób demo.
 
 Mały przycisk „Demo: rozpocznij od początku” w linii imienia jest tylko przy Annie Zielińskiej-Demo (ocena okresowa) i Zofii Szymańskiej-Demo (pierwsza ocena).
-Po potwierdzeniu proces Anny znika z bazy, a wiersz wraca do pierwszego etapu. Test sam zakłada proces
+Kliknięcie bez potwierdzenia kasuje proces Anny i otwiera ekran „Rozpoczęcie oceny” (#208). Test sam zakłada proces
 przez API, więc działa na świeżej bazie i po innych testach. Uruchomienie i zmienne jak w test_samoocena.py.
 """
 
@@ -69,10 +69,16 @@ def test_rozpocznij_od_poczatku_kasuje_proces_osoby_demo(przegladarka):
     zwykly = page.locator(".pulpit .lista button.pozycja").first.bounding_box()
     assert anna.bounding_box()["height"] <= zwykly["height"] + 2, "wiersz demo tej samej wysokości"
 
-    page.once("dialog", lambda d: d.accept())
+    # Bez okna potwierdzenia (#208): kliknięcie kasuje dane i od razu otwiera „Rozpoczęcie oceny” (krok 1).
+    dialogi: list[str] = []
+    page.on("dialog", lambda d: (dialogi.append(d.message), d.dismiss()))
     anna.get_by_role("button", name="Demo: rozpocznij od początku").click()
-    expect(page.get_by_role("status")).to_contain_text("Anna Zielińska-Demo: ocenę okresową zaczynasz od pierwszego etapu")
-    expect(page.locator(".pozycja.z-akcja", has_text="Anna Zielińska-Demo")).to_be_visible()
-    expect(page.locator(".powloka .karta, .karta-pracownika")).to_have_count(0)
+    expect(page.get_by_text("Rozpoczęcie oceny · zanim ocenisz")).to_be_visible()
+    expect(page.get_by_role("heading", name="Anna Zielińska-Demo")).to_be_visible()
+    expect(page.get_by_role("button", name="Rozpocznij ocenę")).to_be_visible()
+    assert dialogi == []
     assert not any(p["osoba_id"] == "P-101" for p in _api("GET", "/api/procesy", token)[1])
+    # „Wróć” prowadzi do karty osoby.
+    page.get_by_role("button", name="Wróć").first.click()
+    expect(page.get_by_text("Ocena okresowa", exact=False).first).to_be_visible()
     page.close()
