@@ -18,7 +18,7 @@ import { MapaKompetencji } from "./Kompetencje";
 import { Inicjaly, SzkieletListy, WierszListy } from "./Lista";
 import { Kafel } from "./Wykresy";
 import { Wydra } from "./wydra/Wydra";
-import { data, dni, odmiana, osoby, wedlugKomorek, type FiltrPracownikow } from "./zespol-dane";
+import { data, dni, doZrobienia, odmiana, osoby, wedlugKomorek, type FiltrPracownikow } from "./zespol-dane";
 import type { Grupowanie } from "./ListaPracownikow";
 import "./widoki.css";
 import "./pulpit.css";
@@ -43,11 +43,10 @@ const NAZWA_FILTRA: Record<Exclude<Filtr, "wszystkie">, string> = {
 
 interface Sprawa {
   osoba: Pracownik;
-  e: EtapOsoby;
+  cykl: EtapOsoby;
 }
 
-const doZrobienia = (s: Sprawa) => s.e.etap !== "okres";
-const pasuje = (s: Sprawa, f: Filtr) => f === "wszystkie" || (f === "po_terminie" ? s.e.po_terminie : s.e.etap === f);
+const pasuje = (s: Sprawa, f: Filtr) => f === "wszystkie" || (f === "po_terminie" ? s.cykl.po_terminie : s.cykl.etap === f);
 
 /** Czynność w wierszu: przełożony widzi swoją czynność z /api/cykl, pracownik to, co go czeka (rozmowa z przełożonym). */
 function opisCzynnosci(e: EtapOsoby, zespol: boolean): string {
@@ -114,12 +113,12 @@ export function Pulpit({
     Promise.all([pobierzPracownikow(sesja.token), pobierzCykl(sesja.token)])
       .then(([ludzie, cykl]) => {
         const po = new Map(ludzie.map((p) => [p.osoba_id, p]));
-        const wynik = cykl.filter((e) => po.has(e.osoba_id)).map((e) => ({ osoba: po.get(e.osoba_id)!, e }));
+        const wynik = cykl.filter((e) => po.has(e.osoba_id)).map((e) => ({ osoba: po.get(e.osoba_id)!, cykl: e }));
         // Najpierw po terminie, potem najbliższy termin; brak terminu na końcu.
         wynik.sort(
           (a, b) =>
-            Number(b.e.po_terminie) - Number(a.e.po_terminie) ||
-            (a.e.dni_do_terminu ?? 1e9) - (b.e.dni_do_terminu ?? 1e9),
+            Number(b.cykl.po_terminie) - Number(a.cykl.po_terminie) ||
+            (a.cykl.dni_do_terminu ?? 1e9) - (b.cykl.dni_do_terminu ?? 1e9),
         );
         if (aktualne) setSprawy(wynik);
       })
@@ -172,7 +171,7 @@ export function Pulpit({
   const skrocona = !wszystkie && !szukaj && filtr === "wszystkie" && (lista?.length ?? 0) > NA_START;
   const przelacz = (f: Filtr) => setFiltr((obecny) => (obecny === f ? "wszystkie" : f));
   const ile = (f: Filtr) => sprawy?.filter((s) => doZrobienia(s) && pasuje(s, f)).length ?? 0;
-  const najblizszy = (f: Filtr) => sprawy?.find((s) => doZrobienia(s) && pasuje(s, f) && s.e.termin);
+  const najblizszy = (f: Filtr) => sprawy?.find((s) => doZrobienia(s) && pasuje(s, f) && s.cykl.termin);
   const kafle: { f: Exclude<Filtr, "wszystkie">; etykieta: string; ton?: "zle" | "uwaga" }[] = [
     { f: "po_terminie", etykieta: "Po terminie", ton: "zle" },
     { f: "kryteria", etykieta: "Do rozpoczęcia" },
@@ -220,7 +219,7 @@ export function Pulpit({
                   etykieta={k.etykieta}
                   wartosc={osoby(ile(k.f))}
                   ton={k.ton}
-                  opis={n ? `Najbliżej: ${n.osoba.imie} ${n.osoba.nazwisko}, ${n.e.czynnosc.toLowerCase()} do ${data(n.e.termin!.data)}` : ""}
+                  opis={n ? `Najbliżej: ${n.osoba.imie} ${n.osoba.nazwisko}, ${n.cykl.czynnosc.toLowerCase()} do ${data(n.cykl.termin!.data)}` : ""}
                   onClick={() => przelacz(k.f)}
                   wybrany={filtr === k.f}
                 />
@@ -257,7 +256,7 @@ export function Pulpit({
                     key={s.osoba.osoba_id}
                     lewa={<Inicjaly imie={s.osoba.imie} nazwisko={s.osoba.nazwisko} />}
                     tytul={`${s.osoba.imie} ${s.osoba.nazwisko}`}
-                    znacznik={<Plakietka e={s.e} />}
+                    znacznik={<Plakietka e={s.cykl} />}
                     akcja={
                       demo && (
                         <button
@@ -270,7 +269,7 @@ export function Pulpit({
                         </button>
                       )
                     }
-                    opis={opisCzynnosci(s.e, zespol)}
+                    opis={opisCzynnosci(s.cykl, zespol)}
                     onClick={() => onWybierz(s.osoba)}
                   />
                 );

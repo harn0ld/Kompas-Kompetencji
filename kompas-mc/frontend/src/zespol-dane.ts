@@ -59,7 +59,7 @@ export function nastepnyKrok(s: Sprawa): string {
 }
 
 /** Do zrobienia teraz: ustalenie kryteriów, ocena albo brak danych; „okres” to czas między nimi. */
-export const doZrobienia = (s: Sprawa) => !!s.cykl && s.cykl.etap !== "okres";
+export const doZrobienia = ({ cykl }: Pick<Sprawa, "cykl">) => !!cykl && cykl.etap !== "okres";
 export const poTerminie = (s: Sprawa) => !!s.cykl?.po_terminie;
 /** Termin w ciągu 14 dni (bez już przekroczonych). */
 export const wkrotce = (s: Sprawa) =>
