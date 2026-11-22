@@ -1,4 +1,4 @@
-# Korpus aplikacji. Źródła: folder „materialy mc” (tylko do odczytu) oraz instrukcja obsługi aplikacji (ostatni dokument).
+# Korpus aplikacji. Źródła: wyłącznie folder „materialy mc”. Poza paczką MC są w nim ustawa (ISAP) i instrukcja obsługi aplikacji.
 # Ścieżki plików są względne wobec tego pliku. Inny manifest: zmienna KOMPAS_MC_MANIFEST.
 #
 # Pola aplikacji (core czyta tylko doc_id, doc_version i plik):
@@ -116,7 +116,7 @@ dokumenty:
   - doc_id: instrukcja-kompas
     doc_version: "1"
     nazwa: Instrukcja obsługi Kompasu
-    plik: "instrukcja-obslugi.docx"
+    plik: "../../materialy mc/Instrukcja obsługi Kompasu.docx"
     sciezka: wspolne
     kategoria: FUNKCJA_APLIKACJI
     asystent: false
