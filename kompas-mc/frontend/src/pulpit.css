@@ -21,21 +21,12 @@ button.pulpit-wiecej { align-self: flex-start; min-height: 44px; text-align: lef
 .pulpit-fakty dt { color: var(--k-text-muted); font-size: var(--t-small-r); line-height: var(--t-small-l); }
 .pulpit-fakty dd { margin: 0; font-variant-numeric: tabular-nums; }
 
-.pulpit-pasek {
-  position: sticky; bottom: 0; z-index: var(--z-sticky); margin-top: auto; margin-bottom: calc(-1 * var(--o-64));
-  padding: var(--o-16) 0 var(--o-24); border-top: 1px solid var(--k-line); background: var(--k-canvas);
-  box-shadow: 0 -12px 16px -12px var(--k-backdrop);
-}
-
 @container (min-width: 880px) {
   .pulpit-kolumny { grid-template-columns: minmax(0, 1fr) 360px; gap: var(--o-48); }
 }
 @container (max-width: 640px) {
   .pulpit-kafle { grid-template-columns: minmax(0, 1fr); }
   .pulpit-kafle .kafel { min-height: 0; }
-}
-@media (max-width: 760px) {
-  .pulpit-pasek { bottom: calc(var(--o-64) + var(--o-8)); margin-bottom: calc(-1 * var(--o-32)); padding-bottom: var(--o-12); }
 }
 @media (hover: hover) and (pointer: fine) {
   .pulpit-kafle button.kafel:hover { background: var(--k-wiersz-hover); }
