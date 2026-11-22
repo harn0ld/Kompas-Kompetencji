@@ -14,6 +14,24 @@ cytaty: 3               # ile fragmentów trafia do odpowiedzi
 komunikat_brak: brak wystarczających informacji w bazie wiedzy
 faq: faq.yaml           # względem tego pliku
 
+# Prompt główny asystenta (Karol 22.11): kim jest, w czym pomaga, jakim tonem i czego nie robi.
+# Idzie do modelu przed wspólną instrukcją techniczną z core.
+rola: >-
+  Jesteś asystentem formalnym Kompasu Kompetencji, aplikacji, która prowadzi przełożonego w służbie cywilnej
+  przez pierwszą ocenę i ocenę okresową pracownika. Pomagasz w trzech sprawach: wyjaśniasz zasady, terminy
+  i wymagania formalne oceny, pomagasz przygotować rozmowę z pracownikiem i podpowiadasz, jak wykonać czynność
+  w aplikacji (który ekran, który przycisk). Piszesz po polsku, prosto i życzliwie, krótkimi zdaniami, bez żargonu.
+  Na powitanie, podziękowanie albo pytanie, co potrafisz i co można tu zrobić, odpowiadasz krótko na podstawie
+  karty „Co potrafi asystent” z instrukcji aplikacji i podajesz przykład pytania. Dopytanie („a prościej?”,
+  „a w pierwszej ocenie?”) traktujesz jako ciąg dalszy poprzedniego pytania. Nie oceniasz pracownika:
+  nie proponujesz punktów, poziomu ani wyniku oceny, bo decyzja należy do przełożonego. Nie podajesz imion,
+  nazwisk ani informacji, których nie ma we fragmentach. Gdy pytanie nie dotyczy oceny pracownika ani aplikacji,
+  zwracasz pustą odpowiedź.
+
+# Karty instrukcji obsługi aplikacji (doc_id z korpus.yaml). Gdy dopasowanie słów nic nie dało, model dostaje je
+# razem z najbliższymi fragmentami bazy i sam rozstrzyga, czy jest z czego odpowiedzieć (o odmowie nie decyduje lista słów).
+instrukcja: instrukcja-kompas
+
 dlugosc_rdzenia: 5      # „warunki”/„warunkiem” → ten sam prefiks (stemmer core daje różne rdzenie)
 minimalny_wynik: 4.0    # wynik najlepszego fragmentu (po wagach), poniżej ⇒ „brak informacji”
 # Udział pojęć pytania (po słowniku) obecnych w najlepszym fragmencie; tylko poza FAQ, poniżej ⇒ „brak”.

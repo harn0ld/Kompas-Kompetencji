@@ -131,6 +131,10 @@ class KonfiguracjaAsystenta:
     ustawa_maks_z_rankingu: int | None = None
     komunikaty: dict[str, str] | None = None
     faq: list[dict] | None = None
+    rola: str = ""
+    """Prompt główny asystenta: kim jest, w czym pomaga, ton, czego nie robi."""
+    instrukcja: str | None = None
+    """doc_id kart instrukcji obsługi aplikacji; model dostaje je, gdy dopasowanie słów nic nie dało."""
 
     @classmethod
     def z_pliku(cls, plik: str | Path) -> KonfiguracjaAsystenta:
@@ -158,6 +162,8 @@ class KonfiguracjaAsystenta:
             ustawa=d.get("ustawa"),
             ustawa_maks_z_rankingu=d.get("ustawa_maks_z_rankingu"),
             komunikaty=d.get("komunikaty") or {},
+            rola=" ".join(str(d.get("rola", "")).split()),
+            instrukcja=d.get("instrukcja"),
             faq=faq,
         )
 
@@ -237,7 +243,53 @@ class Asystent:
             ponownie = self._odpowiedz(f"{poprzednie.strip()} {pytanie}", sciezka, kontekst, uprosc)
             if ponownie.znaleziono:
                 return ponownie.model_copy(update={"pytanie": pytanie})
+        if not wynik.znaleziono:
+            return self._model_decyduje(pytanie, sciezka, poprzednie) or wynik
         return wynik
+
+    def _model_decyduje(
+        self, pytanie: str, sciezka: Sciezka | None, poprzednie: str | None
+    ) -> OdpowiedzAsystenta | None:
+        """Karol 22.11: o odmowie nie decyduje lista słów. Gdy dopasowanie słów nic nie dało („hej”,
+        „co możesz?”, pytanie innymi słowami), pytanie dostaje model razem z promptem głównym, kartami
+        instrukcji aplikacji i najbliższymi fragmentami bazy. Odpowiedź przechodzi tylko z cytatem
+        sprawdzonym w core; pusta odpowiedź modelu albo brak modelu zostawia odmowę."""
+        dostawcy = [d for d in self.dostawcy if d.tryb != Tryb.EKSTRAKCYJNE]
+        karty = [f for f in self._fragmenty if f.doc_id == self.konf.instrukcja]
+        if not dostawcy or not karty:
+            return None
+        zapytanie = self._tresc(self._rozwin(pytanie)[0])
+        ranking = self._ranking(zapytanie, set(self.korpus.doc_ids_dla(sciezka))) if zapytanie else []
+        fragmenty = karty + [f for _, f in ranking if f.doc_id != self.konf.instrukcja][: self.konf.cytaty]
+        try:
+            wynik = wywolaj(
+                Zapytanie(
+                    operacja="asystent_formalny",
+                    prompt_wersja=self.konf.wersja,
+                    pytanie=f"Poprzednie pytanie: {poprzednie.strip()}\nPytanie: {pytanie}" if poprzednie else pytanie,
+                    fragmenty=fragmenty,
+                    rola=self.konf.rola,
+                ),
+                dostawcy,
+                self.dziennik,
+            )
+        except BrakOdpowiedzi:
+            return None
+        po_id = {f.id: f for f in fragmenty}
+        teksty: dict[str, str] = {}
+        for c in wynik.odpowiedz.cytaty:
+            teksty.setdefault(c.fragment_id, c.cytat)
+        return OdpowiedzAsystenta(
+            pytanie=pytanie,
+            sciezka=sciezka,
+            znaleziono=True,
+            tresc=wynik.odpowiedz.tresc,
+            cytaty=[self._cytat(po_id[fid], tekst, zapytanie, None) for fid, tekst in teksty.items()],
+            tryb=wynik.tryb,
+            dostawca=wynik.dostawca,
+            odrzuceni=wynik.odrzuceni,
+            uwagi=[u for u in (self._kom("podsumowanie"), self._kom("sugestia")) if u],
+        )
 
     def _uprosc(self, tresc: str, fragmenty: list[Fragment]) -> str | None:
         """Ta sama odpowiedź prostym językiem. Instrukcja core każe składać tresc z cytatów, więc model
@@ -252,7 +304,10 @@ class Asystent:
         )
         try:
             w = wywolaj(
-                Zapytanie(operacja="asystent_uproszczenie", prompt_wersja=self.konf.wersja, pytanie=polecenie, fragmenty=fragmenty),
+Zapytanie(
+                    operacja="asystent_uproszczenie", prompt_wersja=self.konf.wersja, pytanie=polecenie,
+                    fragmenty=fragmenty, rola=self.konf.rola,
+                ),
                 dostawcy,
                 self.dziennik,
             )
@@ -325,6 +380,7 @@ class Asystent:
                         else rozwiniete
                     ),
                     fragmenty=wybrane,
+                    rola=self.konf.rola,
                 ),
                 self.dostawcy,
                 self.dziennik,

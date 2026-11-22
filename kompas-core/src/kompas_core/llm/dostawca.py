@@ -134,6 +134,11 @@ Zasady: cytat kopiuj znak po znaku z fragmentu o podanym ID. Nie używaj wiedzy 
 _PODSUMOWANIE = {"asystent_formalny": "tak"}
 
 
+def _system(z: Zapytanie) -> str:
+    """Prompt główny aplikacji (jeśli jest) przed wspólną instrukcją techniczną."""
+    return f"{z.rola}\n\n{_INSTRUKCJA}" if z.rola else _INSTRUKCJA
+
+
 def _wiadomosc(z: Zapytanie) -> str:
     fragmenty = "\n\n".join(f"[{f.id}]\n{f.tekst}" for f in z.fragmenty)
     katalog = ", ".join(z.katalog) if z.katalog else "(brak — nie wybieraj)"
@@ -189,7 +194,7 @@ class Anthropic:
             {
                 "model": self.model,
                 "max_tokens": 2048,
-                "system": _INSTRUKCJA,
+                "system": _system(zapytanie),
                 "messages": [{"role": "user", "content": _wiadomosc(zapytanie)}],
             },
             {"x-api-key": klucz, "anthropic-version": "2023-06-01"},
@@ -239,7 +244,7 @@ class OpenAiZgodny:
         dane: dict[str, Any] = {
             "model": self.model,
             "messages": [
-                {"role": "system", "content": _INSTRUKCJA},
+                {"role": "system", "content": _system(zapytanie)},
                 {"role": "user", "content": _wiadomosc(zapytanie)},
             ],
             "response_format": {"type": "json_object"},
@@ -276,7 +281,7 @@ class Ollama:
                 "stream": False,
                 "format": "json",
                 "messages": [
-                    {"role": "system", "content": _INSTRUKCJA},
+                    {"role": "system", "content": _system(zapytanie)},
                     {"role": "user", "content": _wiadomosc(zapytanie)},
                 ],
             },

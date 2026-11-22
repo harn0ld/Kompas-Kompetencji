@@ -413,3 +413,45 @@ def test_podsumowanie_modelu_nad_zrodlami_a_bez_modelu_same_cytaty(asystent):
 
     assert wiersz("asystent_formalny") == "Podsumowanie: tak"
     assert wiersz("asystent_przygotowanie") == "Podsumowanie: format z pytania"
+
+
+class _AtrapaKart:
+    """Model w teście: odpowiada z pierwszego fragmentu i zapamiętuje, co dostał."""
+
+    nazwa = "atrapa"
+    model = "test"
+
+    def __init__(self):
+        from kompas_core.llm import Tryb
+
+        self.tryb = Tryb.NA_ZYWO
+        self.zapytania = []
+
+    def odpowiedz(self, zapytanie):
+        from kompas_core.llm import Cytat, Odpowiedz
+
+        self.zapytania.append(zapytanie)
+        f = zapytanie.fragmenty[0]
+        return Odpowiedz(
+            cytaty=[Cytat(fragment_id=f.id, cytat=f.tekst[:60])],
+            tresc="Cześć! Wyjaśniam zasady oceny i podpowiadam, jak wykonać czynność w aplikacji.",
+        )
+
+
+def test_hej_dostaje_model_z_rola_i_kartami_a_bez_modelu_zostaje_odmowa(asystent):
+    """Karol 22.11: o odmowie nie decyduje lista słów. „hej” dostaje model z promptem głównym i kartami
+    instrukcji aplikacji; odpowiedź ma cytat z karty. Bez modelu zostaje dotychczasowa odmowa."""
+    assert not asystent.odpowiedz("hej").znaleziono
+
+    atrapa = _AtrapaKart()
+    poprzedni = asystent.dostawcy
+    asystent.dostawcy = [atrapa, *poprzedni]
+    try:
+        odp = asystent.odpowiedz("hej")
+    finally:
+        asystent.dostawcy = poprzedni
+    assert odp.znaleziono and odp.tresc.startswith("Cześć") and odp.cytaty[0].doc_id == "instrukcja-kompas"
+    assert odp.cytaty[0].kategoria == "FUNKCJA_APLIKACJI" and odp.uwagi[0].startswith("Podsumowanie napisał model AI")
+    zapytanie = atrapa.zapytania[-1]
+    assert zapytanie.rola.startswith("Jesteś asystentem formalnym Kompasu Kompetencji")
+    assert zapytanie.fragmenty[0].tekst.startswith("Karta 1. Co potrafi asystent")

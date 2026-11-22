@@ -41,6 +41,9 @@ class Zapytanie(_Model):
     pytanie: str
     fragmenty: list[Fragment]
     katalog: list[str] = Field(default_factory=list)
+    rola: str = ""
+    """Prompt główny aplikacji (kim jest asystent, w czym pomaga, ton, granice); idzie do modelu
+    przed wspólną instrukcją techniczną. Pusty = sama instrukcja techniczna."""
 
 
 class Cytat(_Model):
