@@ -11,8 +11,13 @@ def test_bez_logowania_401(klient):
 
 
 def test_przelozony_widzi_tylko_swoich_podwladnych(klient, naglowek):
-    assert ids(klient, naglowek, "przelozony1") == ["P-101", "P-104", "P-105", "P-202", "P-203"]
-    assert ids(klient, naglowek, "przelozony2") == ["P-102", "P-103", "P-201", "P-204"]
+    assert sorted(ids(klient, naglowek, "przelozony1")) == [
+        "P-101", "P-104", "P-105", "P-111", "P-114", "P-115", "P-121", "P-124", "P-125",
+        "P-202", "P-203", "P-212", "P-213", "P-222", "P-223",
+    ]
+    assert sorted(ids(klient, naglowek, "przelozony2")) == [
+        "P-102", "P-103", "P-112", "P-113", "P-122", "P-123", "P-201", "P-204", "P-211", "P-214", "P-221", "P-224",
+    ]
     h = naglowek("przelozony1")
     assert klient.get("/api/pracownicy/P-101", headers=h).status_code == 200
     assert klient.get("/api/pracownicy/P-102", headers=h).status_code == 403
@@ -21,7 +26,7 @@ def test_przelozony_widzi_tylko_swoich_podwladnych(klient, naglowek):
 def test_oceniany_widzi_tylko_siebie_a_hr_wszystkich(klient, naglowek):
     assert ids(klient, naglowek, "oceniany") == ["P-101"]
     assert klient.get("/api/pracownicy/P-104", headers=naglowek("oceniany")).status_code == 403
-    assert len(ids(klient, naglowek, "hr")) == 11
+    assert len(ids(klient, naglowek, "hr")) == 29
 
 
 def test_nieznana_osoba_404_a_ja_zwraca_role(klient, naglowek):

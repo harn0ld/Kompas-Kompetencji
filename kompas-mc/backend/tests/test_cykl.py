@@ -40,7 +40,8 @@ def cykl(klient, naglowek) -> dict[str, dict]:
 
 def test_przelozony_widzi_podwladnych_z_etapem_i_terminem(klient, h):
     e = cykl(klient, h("przelozony1"))
-    assert set(e) == {"P-101", "P-104", "P-105", "P-202", "P-203"}
+    assert set(e) == {"P-101", "P-104", "P-105", "P-202", "P-203"} | {  # + po dwie kopie testowe każdego przypadku
+        "P-111", "P-114", "P-115", "P-121", "P-124", "P-125", "P-212", "P-213", "P-222", "P-223"}
     # ocena 03.12.2024 → 24 miesiące mijają 03.12.2026, czyli za 12 dni: koniec okresu
     assert (e["P-105"]["etap"], e["P-105"]["czynnosc"]) == ("ocena", "Rozmowa oceniająca")
     assert (e["P-105"]["termin"]["data"], e["P-105"]["dni_do_terminu"]) == ("2026-12-03", 12)
@@ -92,7 +93,7 @@ def test_proces_w_aplikacji_przesuwa_etap(klient, h):
 
 def test_zakres_jak_w_liscie_pracownikow(klient, h):
     assert set(cykl(klient, h("oceniany"))) == {"P-101"}
-    assert len(cykl(klient, h("hr"))) == 11
+    assert len(cykl(klient, h("hr"))) == 29
 
 
 def test_okno_oceny_koncowej_z_konfiguracji(ustawienia):

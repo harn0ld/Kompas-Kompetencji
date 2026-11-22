@@ -209,3 +209,323 @@ pracownicy:
 
 # Do uzgodnienia z B (#28): nazwy pól i format (YAML vs JSON), czy mock QNT
 # zwraca `korpus` i `absolwent_ksap`, oraz loginy kont demo dla P-001 / P-002 / HR.
+
+  # ---------------- dane testowe: po dwie kopie każdego przypadku (Karol 22.11) ----------------
+  # Te same fakty kadrowe i ten sam przełożony co wzór, inne imię i nazwisko: każdy przypadek oceny
+  # da się przejść trzy razy.
+
+  - osoba_id: P-111
+    imie: Joanna
+    nazwisko: Kaczmarek-Demo
+    stanowisko: radca
+    symbol_osp: DSI WWI 5
+    komorka: Departament Rozwoju i Bezpieczeństwa Sztucznej Inteligencji / Wydział Wspierania Innowacyjności
+    przelozony_id: P-001
+    kieruje_pracownikami: false
+    korpus: urzednik_sc
+    data_zatrudnienia: 2019-05-06
+    rodzaj_umowy: nieokreslony
+    ostatnia_ocena_okresowa:
+      data: 2024-12-02
+      wynik: pozytywna
+      oceny_czastkowe: { wykorzystywanie-wiedzy-i-doskonalenie-zawodowe: 7, rzetelnosc: 7, organizacja-pracy-i-orientacja-na-osiaganie-celow: 5, wspolpraca: 5, komunikacja: 3 }   # fikcyjne punkty z arkusza (demo #33)
+    oczekiwany_arkusz: C
+    scenariusz: Dane testowe, kopia P-101. GŁÓWNA ŚCIEŻKA DEMO. Ocena okresowa na arkuszu C, termin 24 mies. od 2024-12-02 → 2026-12-02 (za 11 dni); urzędnik SC → możliwy wniosek o stopień służbowy (§ 11 ust. 5).
+    demo_od_poczatku: okresowa   # przycisk „Rozpocznij od początku” na pulpicie (#186)
+
+  - osoba_id: P-121
+    imie: Monika
+    nazwisko: Witkowska-Demo
+    stanowisko: radca
+    symbol_osp: DSI WWI 5
+    komorka: Departament Rozwoju i Bezpieczeństwa Sztucznej Inteligencji / Wydział Wspierania Innowacyjności
+    przelozony_id: P-001
+    kieruje_pracownikami: false
+    korpus: urzednik_sc
+    data_zatrudnienia: 2019-05-06
+    rodzaj_umowy: nieokreslony
+    ostatnia_ocena_okresowa:
+      data: 2024-12-02
+      wynik: pozytywna
+      oceny_czastkowe: { wykorzystywanie-wiedzy-i-doskonalenie-zawodowe: 7, rzetelnosc: 7, organizacja-pracy-i-orientacja-na-osiaganie-celow: 5, wspolpraca: 5, komunikacja: 3 }   # fikcyjne punkty z arkusza (demo #33)
+    oczekiwany_arkusz: C
+    scenariusz: Dane testowe, kopia P-101. GŁÓWNA ŚCIEŻKA DEMO. Ocena okresowa na arkuszu C, termin 24 mies. od 2024-12-02 → 2026-12-02 (za 11 dni); urzędnik SC → możliwy wniosek o stopień służbowy (§ 11 ust. 5).
+    demo_od_poczatku: okresowa   # przycisk „Rozpocznij od początku” na pulpicie (#186)
+
+  - osoba_id: P-112
+    imie: Bartosz
+    nazwisko: Olszewski-Demo
+    stanowisko: starszy specjalista
+    symbol_osp: DC WZKSOiC 6
+    komorka: Departament Cyberbezpieczeństwa / Wydział Zarządzania Kryzysowego, Spraw Obronnych i Cyberbezpieczeństwa
+    przelozony_id: P-002
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2021-02-01
+    rodzaj_umowy: nieokreslony
+    ostatnia_ocena_okresowa:
+      data: 2026-11-16
+      wynik: negatywna
+      data_zapoznania: 2026-11-18   # podpis ocenianego na arkuszu (dane demo)
+      oceny_czastkowe: { wykorzystywanie-wiedzy-i-doskonalenie-zawodowe: 3, rzetelnosc: 1, organizacja-pracy-i-orientacja-na-osiaganie-celow: 3, wspolpraca: 3, komunikacja: 3 }   # fikcyjne punkty z arkusza (demo #33)
+    oczekiwany_arkusz: C
+    scenariusz: Dane testowe, kopia P-102. Po ocenie negatywnej – rozmowa i kryteria w 7 dni od 2026-11-16 → do 2026-11-23 (§ 7 pkt 2); alert HR „pilne”.
+
+  - osoba_id: P-122
+    imie: Łukasz
+    nazwisko: Rutkowski-Demo
+    stanowisko: starszy specjalista
+    symbol_osp: DC WZKSOiC 6
+    komorka: Departament Cyberbezpieczeństwa / Wydział Zarządzania Kryzysowego, Spraw Obronnych i Cyberbezpieczeństwa
+    przelozony_id: P-002
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2021-02-01
+    rodzaj_umowy: nieokreslony
+    ostatnia_ocena_okresowa:
+      data: 2026-11-16
+      wynik: negatywna
+      data_zapoznania: 2026-11-18   # podpis ocenianego na arkuszu (dane demo)
+      oceny_czastkowe: { wykorzystywanie-wiedzy-i-doskonalenie-zawodowe: 3, rzetelnosc: 1, organizacja-pracy-i-orientacja-na-osiaganie-celow: 3, wspolpraca: 3, komunikacja: 3 }   # fikcyjne punkty z arkusza (demo #33)
+    oczekiwany_arkusz: C
+    scenariusz: Dane testowe, kopia P-102. Po ocenie negatywnej – rozmowa i kryteria w 7 dni od 2026-11-16 → do 2026-11-23 (§ 7 pkt 2); alert HR „pilne”.
+
+  - osoba_id: P-113
+    imie: Natalia
+    nazwisko: Grabowska-Demo
+    stanowisko: starszy specjalista
+    symbol_osp: DC WZKSOiC 6
+    komorka: Departament Cyberbezpieczeństwa / Wydział Zarządzania Kryzysowego, Spraw Obronnych i Cyberbezpieczeństwa
+    przelozony_id: P-002
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2020-10-12
+    rodzaj_umowy: nieokreslony
+    ostatnia_ocena_okresowa:
+      data: 2025-06-30
+      wynik: pozytywna
+      oceny_czastkowe: { wykorzystywanie-wiedzy-i-doskonalenie-zawodowe: 7, rzetelnosc: 7, organizacja-pracy-i-orientacja-na-osiaganie-celow: 7, wspolpraca: 5, komunikacja: 5 }   # fikcyjne punkty z arkusza (demo #33)
+    zmiana_oceniajacego: { data: 2026-03-01, poprzedni_przelozony: P-000 }
+    oczekiwany_arkusz: C
+    scenariusz: Dane testowe, kopia P-103. Zmiana oceniającego w trakcie okresu – kryteria wybrane wcześniej zostają (§ 9 ust. 3).
+
+  - osoba_id: P-123
+    imie: Aleksandra
+    nazwisko: Ostrowska-Demo
+    stanowisko: starszy specjalista
+    symbol_osp: DC WZKSOiC 6
+    komorka: Departament Cyberbezpieczeństwa / Wydział Zarządzania Kryzysowego, Spraw Obronnych i Cyberbezpieczeństwa
+    przelozony_id: P-002
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2020-10-12
+    rodzaj_umowy: nieokreslony
+    ostatnia_ocena_okresowa:
+      data: 2025-06-30
+      wynik: pozytywna
+      oceny_czastkowe: { wykorzystywanie-wiedzy-i-doskonalenie-zawodowe: 7, rzetelnosc: 7, organizacja-pracy-i-orientacja-na-osiaganie-celow: 7, wspolpraca: 5, komunikacja: 5 }   # fikcyjne punkty z arkusza (demo #33)
+    zmiana_oceniajacego: { data: 2026-03-01, poprzedni_przelozony: P-000 }
+    oczekiwany_arkusz: C
+    scenariusz: Dane testowe, kopia P-103. Zmiana oceniającego w trakcie okresu – kryteria wybrane wcześniej zostają (§ 9 ust. 3).
+
+  - osoba_id: P-114
+    imie: Rafał
+    nazwisko: Kubiak-Demo
+    stanowisko: radca
+    symbol_osp: DSI WWI 5
+    komorka: Departament Rozwoju i Bezpieczeństwa Sztucznej Inteligencji / Wydział Wspierania Innowacyjności
+    przelozony_id: P-001
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2023-01-09
+    rodzaj_umowy: nieokreslony
+    ostatnia_ocena_okresowa:
+      data: 2025-10-15
+      wynik: pozytywna
+      oceny_czastkowe: { wykorzystywanie-wiedzy-i-doskonalenie-zawodowe: 9, rzetelnosc: 5, organizacja-pracy-i-orientacja-na-osiaganie-celow: 5, wspolpraca: 7, komunikacja: 3 }   # fikcyjne punkty z arkusza (demo #33)
+    oczekiwany_arkusz: C
+    scenariusz: Dane testowe, kopia P-104. Ocena w toku bez pilnego terminu (następna 2027-10-15) – tło listy HR.
+
+  - osoba_id: P-124
+    imie: Krzysztof
+    nazwisko: Marciniak-Demo
+    stanowisko: radca
+    symbol_osp: DSI WWI 5
+    komorka: Departament Rozwoju i Bezpieczeństwa Sztucznej Inteligencji / Wydział Wspierania Innowacyjności
+    przelozony_id: P-001
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2023-01-09
+    rodzaj_umowy: nieokreslony
+    ostatnia_ocena_okresowa:
+      data: 2025-10-15
+      wynik: pozytywna
+      oceny_czastkowe: { wykorzystywanie-wiedzy-i-doskonalenie-zawodowe: 9, rzetelnosc: 5, organizacja-pracy-i-orientacja-na-osiaganie-celow: 5, wspolpraca: 7, komunikacja: 3 }   # fikcyjne punkty z arkusza (demo #33)
+    oczekiwany_arkusz: C
+    scenariusz: Dane testowe, kopia P-104. Ocena w toku bez pilnego terminu (następna 2027-10-15) – tło listy HR.
+
+  - osoba_id: P-115
+    imie: Dariusz
+    nazwisko: Adamski-Demo
+    stanowisko: naczelnik wydziału
+    symbol_osp: DWM WKAM 1
+    komorka: Departament Współpracy Międzynarodowej / Wydział Analiz Współpracy Międzynarodowej
+    przelozony_id: P-001
+    kieruje_pracownikami: true
+    korpus: pracownik_sc
+    data_zatrudnienia: 2021-02-15
+    rodzaj_umowy: nieokreslony
+    ostatnia_ocena_okresowa:
+      data: 2024-12-03
+      wynik: pozytywna
+      oceny_czastkowe: { zarzadzanie-ludzmi: 5, podejmowanie-decyzji-i-odpowiedzialnosc: 7, organizacja-pracy-i-orientacja-na-osiaganie-celow: 7, wspolpraca: 5, komunikacja: 5 }   # fikcyjne punkty z arkusza (demo #33)
+    oczekiwany_arkusz: B
+    scenariusz: Dane testowe, kopia P-105. Ocena okresowa na arkuszu B i rejestracja wydruku w mocku EZD.
+
+  - osoba_id: P-125
+    imie: Igor
+    nazwisko: Zalewski-Demo
+    stanowisko: naczelnik wydziału
+    symbol_osp: DWM WKAM 1
+    komorka: Departament Współpracy Międzynarodowej / Wydział Analiz Współpracy Międzynarodowej
+    przelozony_id: P-001
+    kieruje_pracownikami: true
+    korpus: pracownik_sc
+    data_zatrudnienia: 2021-02-15
+    rodzaj_umowy: nieokreslony
+    ostatnia_ocena_okresowa:
+      data: 2024-12-03
+      wynik: pozytywna
+      oceny_czastkowe: { zarzadzanie-ludzmi: 5, podejmowanie-decyzji-i-odpowiedzialnosc: 7, organizacja-pracy-i-orientacja-na-osiaganie-celow: 7, wspolpraca: 5, komunikacja: 5 }   # fikcyjne punkty z arkusza (demo #33)
+    oczekiwany_arkusz: B
+    scenariusz: Dane testowe, kopia P-105. Ocena okresowa na arkuszu B i rejestracja wydruku w mocku EZD.
+
+  - osoba_id: P-211
+    imie: Sylwia
+    nazwisko: Nowicka-Demo
+    stanowisko: starszy specjalista
+    symbol_osp: DC WZKSOiC 6
+    komorka: Departament Cyberbezpieczeństwa / Wydział Zarządzania Kryzysowego, Spraw Obronnych i Cyberbezpieczeństwa
+    przelozony_id: P-002
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2026-03-02
+    data_konca_zatrudnienia: 2027-03-01
+    rodzaj_umowy: okreslony
+    pierwsza_ocena: { egzamin_sluzba_przygotowawcza: zaliczony, rozmowa_wstepna: 2026-03-16 }
+    scenariusz: Dane testowe, kopia P-201. GŁÓWNA ŚCIEŻKA PIERWSZEJ OCENY. Sprawozdanie po upływie 8 mies. od 2026-03-02 (§ 4 ust. 1) – termin do wyliczenia przez kalendarz z #5.
+
+  - osoba_id: P-221
+    imie: Agnieszka
+    nazwisko: Jasińska-Demo
+    stanowisko: starszy specjalista
+    symbol_osp: DC WZKSOiC 6
+    komorka: Departament Cyberbezpieczeństwa / Wydział Zarządzania Kryzysowego, Spraw Obronnych i Cyberbezpieczeństwa
+    przelozony_id: P-002
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2026-03-02
+    data_konca_zatrudnienia: 2027-03-01
+    rodzaj_umowy: okreslony
+    pierwsza_ocena: { egzamin_sluzba_przygotowawcza: zaliczony, rozmowa_wstepna: 2026-03-16 }
+    scenariusz: Dane testowe, kopia P-201. GŁÓWNA ŚCIEŻKA PIERWSZEJ OCENY. Sprawozdanie po upływie 8 mies. od 2026-03-02 (§ 4 ust. 1) – termin do wyliczenia przez kalendarz z #5.
+
+  - osoba_id: P-212
+    imie: Oskar
+    nazwisko: Jaworski-Demo
+    stanowisko: radca
+    symbol_osp: DSI WWI 5
+    komorka: Departament Rozwoju i Bezpieczeństwa Sztucznej Inteligencji / Wydział Wspierania Innowacyjności
+    przelozony_id: P-001
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2026-11-10
+    data_konca_zatrudnienia: 2027-11-09
+    rodzaj_umowy: okreslony
+    pierwsza_ocena: { egzamin_sluzba_przygotowawcza: brak, rozmowa_wstepna: null }
+    scenariusz: Dane testowe, kopia P-202. Nowo zatrudniony – rozmowa wstępna w 21 dni od 2026-11-10 → do 2026-12-01 (§ 3); przypomnienie HR.
+
+  - osoba_id: P-222
+    imie: Damian
+    nazwisko: Chmielewski-Demo
+    stanowisko: radca
+    symbol_osp: DSI WWI 5
+    komorka: Departament Rozwoju i Bezpieczeństwa Sztucznej Inteligencji / Wydział Wspierania Innowacyjności
+    przelozony_id: P-001
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2026-11-10
+    data_konca_zatrudnienia: 2027-11-09
+    rodzaj_umowy: okreslony
+    pierwsza_ocena: { egzamin_sluzba_przygotowawcza: brak, rozmowa_wstepna: null }
+    scenariusz: Dane testowe, kopia P-202. Nowo zatrudniony – rozmowa wstępna w 21 dni od 2026-11-10 → do 2026-12-01 (§ 3); przypomnienie HR.
+
+  - osoba_id: P-213
+    imie: Patrycja
+    nazwisko: Stępień-Demo
+    stanowisko: radca
+    symbol_osp: DSI WWI 5
+    komorka: Departament Rozwoju i Bezpieczeństwa Sztucznej Inteligencji / Wydział Wspierania Innowacyjności
+    przelozony_id: P-001
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2026-02-02
+    data_konca_zatrudnienia: 2027-02-01
+    rodzaj_umowy: okreslony
+    absolwent_ksap: true
+    wniosek_o_mianowanie: false
+    pierwsza_ocena: { egzamin_sluzba_przygotowawcza: nie_dotyczy, rozmowa_wstepna: 2026-02-16 }
+    scenariusz: Dane testowe, kopia P-203. Absolwent KSAP bez wniosku o mianowanie – warunku egzaminu nie stosuje się (§ 10 ust. 3 pkt 1).
+    demo_od_poczatku: pierwsza   # przycisk „Rozpocznij od początku” na pulpicie (#186)
+
+  - osoba_id: P-223
+    imie: Halina
+    nazwisko: Borkowska-Demo
+    stanowisko: radca
+    symbol_osp: DSI WWI 5
+    komorka: Departament Rozwoju i Bezpieczeństwa Sztucznej Inteligencji / Wydział Wspierania Innowacyjności
+    przelozony_id: P-001
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2026-02-02
+    data_konca_zatrudnienia: 2027-02-01
+    rodzaj_umowy: okreslony
+    absolwent_ksap: true
+    wniosek_o_mianowanie: false
+    pierwsza_ocena: { egzamin_sluzba_przygotowawcza: nie_dotyczy, rozmowa_wstepna: 2026-02-16 }
+    scenariusz: Dane testowe, kopia P-203. Absolwent KSAP bez wniosku o mianowanie – warunku egzaminu nie stosuje się (§ 10 ust. 3 pkt 1).
+    demo_od_poczatku: pierwsza   # przycisk „Rozpocznij od początku” na pulpicie (#186)
+
+  - osoba_id: P-214
+    imie: Wojciech
+    nazwisko: Pietrzak-Demo
+    stanowisko: starszy specjalista
+    symbol_osp: DC WZKSOiC 6
+    komorka: Departament Cyberbezpieczeństwa / Wydział Zarządzania Kryzysowego, Spraw Obronnych i Cyberbezpieczeństwa
+    przelozony_id: P-002
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2026-01-12
+    data_konca_zatrudnienia: 2027-01-11
+    rodzaj_umowy: okreslony
+    zastepstwo: true
+    nieobecnosci: [ { od: 2026-07-06, do: 2026-07-24, rodzaj: usprawiedliwiona } ]
+    pierwsza_ocena: { egzamin_sluzba_przygotowawcza: nie_dotyczy, rozmowa_wstepna: 2026-01-26, uzgodnienie_zastepstwa: 2026-01-14 }
+    scenariusz: Dane testowe, kopia P-204. Zastępstwo (bez egzaminu, § 10 ust. 3 pkt 2) + 19 dni usprawiedliwionej nieobecności → przesunięcie terminu sprawozdania (§ 5 ust. 1).
+
+  - osoba_id: P-224
+    imie: Wiktor
+    nazwisko: Sadowski-Demo
+    stanowisko: starszy specjalista
+    symbol_osp: DC WZKSOiC 6
+    komorka: Departament Cyberbezpieczeństwa / Wydział Zarządzania Kryzysowego, Spraw Obronnych i Cyberbezpieczeństwa
+    przelozony_id: P-002
+    kieruje_pracownikami: false
+    korpus: pracownik_sc
+    data_zatrudnienia: 2026-01-12
+    data_konca_zatrudnienia: 2027-01-11
+    rodzaj_umowy: okreslony
+    zastepstwo: true
+    nieobecnosci: [ { od: 2026-07-06, do: 2026-07-24, rodzaj: usprawiedliwiona } ]
+    pierwsza_ocena: { egzamin_sluzba_przygotowawcza: nie_dotyczy, rozmowa_wstepna: 2026-01-26, uzgodnienie_zastepstwa: 2026-01-14 }
+    scenariusz: Dane testowe, kopia P-204. Zastępstwo (bez egzaminu, § 10 ust. 3 pkt 2) + 19 dni usprawiedliwionej nieobecności → przesunięcie terminu sprawozdania (§ 5 ust. 1).

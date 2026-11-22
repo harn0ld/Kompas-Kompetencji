@@ -44,7 +44,7 @@ def test_przelozony_widzi_podwladnych_z_kartoteki(k, h):
     m = r.json()
     assert m["skala"] == [1, 3, 5, 7, 9] and m["poziom_oczekiwan"] == 5
     osoby = {o["osoba_id"]: o for o in m["osoby"]}
-    assert set(osoby) == {"P-101", "P-104", "P-105"}  # P-202 i P-203 nie mają jeszcze oceny
+    assert set(osoby) == {"P-101", "P-104", "P-105", "P-111", "P-114", "P-115", "P-121", "P-124", "P-125"}  # pierwsza ocena (P-2xx): bez oceny
     assert osoby["P-104"]["zrodlo"] == "ostatnia_ocena" and osoby["P-104"]["punkty"]["komunikacja"] == 3
     nazwy = {kr["kompetencja_id"]: kr["nazwa"] for kr in m["kryteria"]}
     assert "komunikacja" in nazwy and "zarzadzanie-ludzmi" in nazwy  # arkusz C i B naczelnika
