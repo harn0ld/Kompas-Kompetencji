@@ -155,16 +155,33 @@ def test_tabela_przelozony(przegladarka):
     page.close()
 
 
-def test_oceniany_widzi_siebie_bez_filtrow(przegladarka):
+def test_oceniany_twoje_dane_otwiera_wlasna_karte_ze_wszystkimi_celami(przegladarka):
+    """#183: „Twoje dane” bez tabeli z jednym wierszem; na własnej karcie wszystkie cele (tu 5), bez „Pokaż wszystkie”."""
     p, b = przegladarka
     page = b.new_page(viewport={"width": 1440, "height": 900}, color_scheme=TRYB)
+
+    def cele(r):
+        osoba = r.request.url.split("/")[-2]
+        r.fulfill(json={"osoba_id": osoba, "pracownik_moze_edytowac": True, "cele": [
+            {"id": i, "osoba_id": osoba, "nazwa": f"Cel testowy {i}", "opis": "", "wskaznik_id": None,
+             "miernik": "miernik", "termin": "2027-06-30", "status": "w_realizacji", "komentarz": None,
+             "zgloszono_osiagniecie": False, "autor": "oceniany", "utworzono": "2026-11-01", "zmieniono": "2026-11-01"}
+            for i in range(1, 6)
+        ]})
+
+    page.route("**/api/pracownicy/*/cele", lambda r: cele(r) if r.request.method == "GET" else r.continue_())
     page.goto(URL)
     page.fill('input[aria-label="Login"]', "oceniany")
     page.fill('input[aria-label="Hasło"]', "demo")
     page.click("form.logowanie-formularz button")
     page.locator("nav.menu button.poz", has_text="Twoje dane").click()
-    expect(page.locator("tbody tr.wiersz-osoby")).to_have_count(1)
-    expect(page.locator(".listwa")).to_have_count(0)
+    expect(page.locator(".karta h1")).to_contain_text("Zielińska")
+    expect(page.locator("tbody tr.wiersz-osoby")).to_have_count(0)
+    expect(page.locator(".cel-glowa")).to_have_count(5)
+    expect(page.get_by_role("button", name=re.compile("Pokaż wszystkie"))).to_have_count(0)
+    _zrzut(page, "twoje-dane-oceniany")
+    page.locator(".karta button.wstecz").click()
+    expect(page.locator("nav.menu button.poz[aria-current=page]")).to_have_text("Pulpit")
     page.close()
 
 
