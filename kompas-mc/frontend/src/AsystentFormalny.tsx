@@ -170,9 +170,10 @@ function Odpowiedz({ o }: { o: OdpowiedzAsystenta }) {
   }
   return (
     <div className="odpowiedz">
-      {(o.faq_id || o.uproszczona) && o.tresc && <p className="tresc">{o.tresc}</p>}
+      {/* Krótkie podsumowanie na wierzchu, pod nim źródła do rozwinięcia (Karol 22.11); bez podsumowania cytat jest odpowiedzią. */}
+      {o.tresc && <p className="tresc">{o.tresc}</p>}
       {o.cytaty.map((c, i) => (
-        <Cytat key={c.fragment_id} c={c} glowny={i === 0} />
+        <Cytat key={c.fragment_id} c={c} glowny={i === 0} zwiniety={Boolean(o.tresc)} />
       ))}
       {/* Jedno zastrzeżenie na wierzchu; reszta uwag i dane techniczne po rozwinięciu (Karol 22.11: mniej dopisków). */}
       {o.uwagi[0] && <p className="meta">{o.uwagi[0]}</p>}
@@ -197,7 +198,8 @@ function Odpowiedz({ o }: { o: OdpowiedzAsystenta }) {
   );
 }
 
-function Cytat({ c, glowny }: { c: CytatAsystenta; glowny: boolean }) {
+function Cytat({ c, glowny, zwiniety }: { c: CytatAsystenta; glowny: boolean; zwiniety: boolean }) {
+  const [otwarty, setOtwarty] = useState(!zwiniety);
   const [caly, setCaly] = useState(false);
   const w = c.wyrozniony && c.cytat.includes(c.wyrozniony) ? c.wyrozniony : null;
   const pokaz = caly || !w ? c.cytat : w;
@@ -214,11 +216,21 @@ function Cytat({ c, glowny }: { c: CytatAsystenta; glowny: boolean }) {
         <strong>{c.dokument}</strong>
         {c.lokalizator && <> · {c.lokalizator}</>}
         {c.strona && c.lokalizator !== `s. ${c.strona}` && <> · s. {c.strona}</>}
+        {zwiniety && (
+          <>
+            {" "}
+            <button type="button" className="link" aria-expanded={otwarty} onClick={() => setOtwarty((v) => !v)}>
+              {otwarty ? "Ukryj cytat" : "Pokaż cytat"}
+            </button>
+          </>
+        )}
       </div>
-      <blockquote>
-        {caly && w ? <Wyroznij tekst={c.cytat} fraza={w} /> : pokaz}
-      </blockquote>
-      {w && w !== c.cytat && (
+      {otwarty && (
+        <blockquote>
+          {caly && w ? <Wyroznij tekst={c.cytat} fraza={w} /> : pokaz}
+        </blockquote>
+      )}
+      {otwarty && w && w !== c.cytat && (
         <button type="button" className="link" onClick={() => setCaly((v) => !v)}>
           {caly ? "Pokaż wyróżnione zdanie" : "Pokaż cały fragment"}
         </button>

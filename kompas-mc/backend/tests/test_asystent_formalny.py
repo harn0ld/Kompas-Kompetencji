@@ -370,3 +370,46 @@ def test_prosciej_po_pytaniu_o_rozmowe_bierze_te_same_zrodla(asystent):
         assert odp.znaleziono and odp.pytanie == dopytanie
         assert odp.faq_id == wzor.faq_id
         assert [c.fragment_id for c in odp.cytaty] == [c.fragment_id for c in wzor.cytaty]
+
+
+class _AtrapaPodsumowania:
+    """Model w teście: własne podsumowanie w "tresc", cytat z pierwszego fragmentu."""
+
+    nazwa = "atrapa"
+    model = "test"
+
+    def __init__(self):
+        from kompas_core.llm import Tryb
+
+        self.tryb = Tryb.NA_ZYWO
+
+    def odpowiedz(self, zapytanie):
+        from kompas_core.llm import Cytat, Odpowiedz
+
+        f = zapytanie.fragmenty[0]
+        return Odpowiedz(cytaty=[Cytat(fragment_id=f.id, cytat=f.tekst[:40])], tresc="Sprzeciw wnosi oceniany.")
+
+
+def test_podsumowanie_modelu_nad_zrodlami_a_bez_modelu_same_cytaty(asystent):
+    """Karol 22.11: krótkie podsumowanie modelu na wierzchu, źródła pod nim; bez modelu odpowiedzią są cytaty."""
+    from kompas_core.llm import Zapytanie
+    from kompas_core.llm.dostawca import _wiadomosc
+
+    pytanie = "art. 83 ustawy"
+    bez_modelu = asystent.odpowiedz(pytanie, "okresowa")
+    assert bez_modelu.znaleziono and bez_modelu.faq_id is None and bez_modelu.cytaty and bez_modelu.tresc is None
+
+    poprzedni = asystent.dostawcy
+    asystent.dostawcy = [_AtrapaPodsumowania()]
+    try:
+        odp = asystent.odpowiedz(pytanie, "okresowa")
+    finally:
+        asystent.dostawcy = poprzedni
+    assert odp.tresc == "Sprzeciw wnosi oceniany." and odp.cytaty
+    assert odp.uwagi[0].startswith("Podsumowanie napisał model AI")
+
+    def wiersz(operacja):
+        return _wiadomosc(Zapytanie(operacja=operacja, prompt_wersja="1", pytanie="?", fragmenty=[])).splitlines()[2]
+
+    assert wiersz("asystent_formalny") == "Podsumowanie: tak"
+    assert wiersz("asystent_przygotowanie") == "Podsumowanie: format z pytania"

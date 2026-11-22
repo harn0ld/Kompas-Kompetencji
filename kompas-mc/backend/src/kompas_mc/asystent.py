@@ -360,7 +360,12 @@ class Asystent:
         if any(c.powoluje_ustawe for c in cytaty):
             uwagi.append(self._kom("ustawa"))
         pokrycie = podob if faq else self._pokrycie(zapytanie, cytaty[0].cytat if cytaty else "")
-        tresc = faq.odpowiedz if faq else (wynik.odpowiedz.tresc if wynik else None)
+        # Tryb bez modelu składa "tresc" z samych cytatów: wtedy odpowiedzią są cytaty, bez podsumowania.
+        z_modelu = wynik is not None and wynik.tryb != Tryb.EKSTRAKCYJNE
+        tresc = faq.odpowiedz if faq else (wynik.odpowiedz.tresc if z_modelu else None)
+        if tresc and faq is None and (kom := self._kom("podsumowanie")):
+            # Podsumowanie napisał model: to zastrzeżenie idzie na wierzch (okno pokazuje pierwszą uwagę).
+            uwagi.insert(0, kom)
         uproszczona = False
         if uprosc and tresc and (prosciej := self._uprosc(tresc, wybrane)):
             tresc, uproszczona = prosciej, True
