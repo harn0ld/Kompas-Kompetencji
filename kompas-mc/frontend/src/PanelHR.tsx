@@ -113,7 +113,7 @@ export default function PanelHR({ token }: { token: string }) {
                       <>
                         {data(p.najblizszy_termin.data)}
                         <div className="meta">
-                          {p.najblizszy_termin.nazwa} · {dni(p)}
+                          {p.najblizszy_termin.nazwa} · <span className="bez-lamania">{dni(p)}</span>
                         </div>
                       </>
                     ) : (
@@ -124,7 +124,7 @@ export default function PanelHR({ token }: { token: string }) {
                     {p.zagrozony ? (
                       <span className="status negatywna">zagrożony</span>
                     ) : (
-                      <span className="meta">{p.status === "W_TOKU" ? "w toku" : p.status.toLowerCase()}</span>
+                      <span className="meta bez-lamania">{p.status === "W_TOKU" ? "w toku" : p.status.toLowerCase()}</span>
                     )}
                   </td>
                 </tr>
