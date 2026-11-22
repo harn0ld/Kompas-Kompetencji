@@ -58,7 +58,7 @@ Start API trwa kilka sekund, bo przy starcie powstaje korpus z plików MC.
 - Odpowiedź ma krótkie podsumowanie (z zestawu pytań i odpowiedzi albo napisane przez model),
   a pod nim źródła z przyciskiem „Pokaż cytat”. Bez modelu i bez pozycji z zestawu odpowiedzią są
   same cytaty.
-- Karty instrukcji obsługi są w `konfiguracja/instrukcja-obslugi.docx` (jedna karta = jeden akapit).
+- Karty instrukcji obsługi są w `materialy mc/Instrukcja obsługi Kompasu.docx` (jedna karta = jeden akapit).
   Po zmianie nazwy ekranu albo przycisku popraw kartę w tym pliku.
 - Ścieżka zawęża źródła do dokumentów danej ścieżki i wspólnych (model kompetencji, OSP, ustawa).
 - Ustawa o służbie cywilnej: tekst jednolity Dz.U. 2026 poz. 590 z ISAP (stan prawny na
