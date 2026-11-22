@@ -29,6 +29,8 @@ from .procesy import ProcesOceny, dzien_urzedowy, wczytaj_proces
 from .qnt import MockQnt
 from .samoocena import rozbieznosc, ukryj_przed_przekazaniem, wczytaj as wczytaj_samoocene
 
+_W_TOKU = "id = ? AND status = 'W_TOKU'"
+"""Warunek każdego zapisu: równoległe zakończenie procesu wygrywa ze spóźnionym zapisem (#114)."""
 _OCENY = TypeAdapter(dict[str, OcenaWskaznika])
 _DECYZJE = TypeAdapter(dict[str, Decyzja])
 
@@ -84,11 +86,12 @@ def router(auth: Autoryzacja, qnt: MockQnt, stan2: StanKroku2) -> APIRouter:
         baza = request.app.state.baza
         metodyka = rejestr(request).przypnij(proces.id)
         with baza:
-            baza.execute(f"UPDATE procesy SET {kolumna} = ? WHERE id = ?", (wartosc, proces.id))
+            if not baza.execute(f"UPDATE procesy SET {kolumna} = ? WHERE {_W_TOKU}", (wartosc, proces.id)).rowcount:
+                raise HTTPException(409, "Proces nie jest w toku")
         nowy = stan(request, proces)
-        krok = max(proces.krok, 5 if nowy.kompletnosc.wszystkie_decyzje else 3)
+        krok = 5 if nowy.kompletnosc.wszystkie_decyzje else 3
         with baza:
-            baza.execute("UPDATE procesy SET krok = ? WHERE id = ?", (krok, proces.id))
+            baza.execute(f"UPDATE procesy SET krok = MAX(krok, ?) WHERE {_W_TOKU}", (krok, proces.id))
         dziennik: Dziennik = request.app.state.dziennik
         dziennik.zapisz(uz.login, "proces", str(proces.id), przed, po, metodyka.id)
         return nowy
@@ -195,7 +198,7 @@ def router(auth: Autoryzacja, qnt: MockQnt, stan2: StanKroku2) -> APIRouter:
         if body.data and nowy.kompletnosc.wszystkie_decyzje:
             baza = request.app.state.baza
             with baza:
-                baza.execute("UPDATE procesy SET krok = MAX(krok, 6) WHERE id = ?", (proces.id,))
+                baza.execute(f"UPDATE procesy SET krok = MAX(krok, 6) WHERE {_W_TOKU}", (proces.id,))
         return nowy
 
     return r

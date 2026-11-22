@@ -334,6 +334,7 @@ def zbuduj_stan(
     model: ModelKompetencji,
     konf: KonfiguracjaOceny,
 ) -> StanOceny:
+    decyzje = aktualne_decyzje(wybor, decyzje)  # decyzje sprzed ponownego zapisu kryteriów nie liczą się (#114)
     kryteria: list[KryteriumOceny] = []
     ostrzezenia: list[str] = []
     dla_rozwoju: list[WskaznikDlaRozwoju] = []
