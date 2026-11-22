@@ -771,6 +771,8 @@ pozycje:
       - robię rozmowę pierwszy raz i nie wiem jak ją przeprowadzić
     odpowiedz: "Krok po kroku: (1) Przygotowanie: zbierz konkretne przykłady zachowań z całego okresu i przygotuj roboczą wersję oceny (przy pierwszej ocenie także na podstawie sprawozdania). (2) Termin: w ocenie okresowej przed sporządzeniem oceny na piśmie (§ 10), w pierwszej ocenie niezwłocznie po złożeniu sprawozdania (§ 8 ust. 1). (3) Przebieg: omów główne obowiązki i sposób ich realizacji wobec kryteriów, realizację celów oraz kierunki rozwoju; przy każdym kryterium pytaj o konkretne sytuacje. (4) Dialog: daj pracownikowi przedstawić własną ocenę i argumenty; rozmowa ma być dialogiem, a nie monologiem oceniającego. (5) Po rozmowie: uwzględnij jej wnioski w ocenie na piśmie i zapoznaj pracownika z oceną. W Kompasie przeprowadzi Cię przez to ekran „Rozmowa oceniająca”: kryterium po kryterium, z podpowiedziami pytań."
     adnotacje:
+      - {kategoria: OBJAŚNIENIE_MATERIAŁU, doc_id: poradnik-okresowa, lokalizator: "rozdz. 6.2.4. Rozmowa oceniająca", strona: 25,
+         cytat_dosłowny: "nie była monologiem oceniającego, lecz dialogiem oceniającego z ocenianym"}
       - {kategoria: OBJAŚNIENIE_MATERIAŁU, doc_id: poradnik-okresowa, lokalizator: "rozdz. 6.2.3. Proces oceniania", strona: 24,
          cytat_dosłowny: "ustalenie comiesięcznych lub cokwartalnych rozmów"}
       - {kategoria: OBJAŚNIENIE_MATERIAŁU, doc_id: poradnik-pierwsza, lokalizator: "rozdz. 6.5.1. Rozmowa oceniająca", strona: 27,
@@ -779,8 +781,6 @@ pozycje:
          cytat_dosłowny: "przeprowadza z ocenianym rozmowę oceniającą"}
       - {kategoria: PRZEPIS, doc_id: rozp-2015-pierwsza, lokalizator: "§ 8 ust. 1", strona: 3,
          cytat_dosłowny: "przeprowadza z ocenianym rozmowę oceniającą niezwłocznie po złożeniu sprawozdania"}
-      - {kategoria: OBJAŚNIENIE_MATERIAŁU, doc_id: poradnik-okresowa, lokalizator: "rozdz. 6.2.4. Rozmowa oceniająca", strona: 25,
-         cytat_dosłowny: "nie była monologiem oceniającego, lecz dialogiem oceniającego z ocenianym"}
 
   - id: FAQ-R06
     sciezka: wspolne

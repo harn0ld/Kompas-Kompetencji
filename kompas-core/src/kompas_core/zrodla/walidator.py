@@ -50,14 +50,16 @@ class WynikWalidacji(BaseModel):
 _MIEKKI_LACZNIK = re.compile(r"­\s*")
 _LACZNIK_NA_KONCU_WIERSZA = re.compile(r"-[ \t ]*\r?\n\s*")
 _BIALE = re.compile(r"\s+")
+_PUNKTOR = re.compile("[•]")
+"""Punktory wyliczeń z PDF poradników (font Symbol: U+F0B7, U+F02D) i „•”; model cytuje listę bez nich."""
 
 
 def _nfc(tekst: str) -> str:
-    return _MIEKKI_LACZNIK.sub("", unicodedata.normalize("NFC", tekst))
+    return _PUNKTOR.sub(" ", _MIEKKI_LACZNIK.sub("", unicodedata.normalize("NFC", tekst)))
 
 
 def normalizuj(tekst: str) -> str:
-    """Normalizacja do porównań: dzielenie wyrazów na końcu wiersza i białe znaki.
+    """Normalizacja do porównań: dzielenie wyrazów na końcu wiersza, punktory wyliczeń i białe znaki.
 
     ``"zatrudnio-\\nnego"`` → ``"zatrudnionego"``.
     """
