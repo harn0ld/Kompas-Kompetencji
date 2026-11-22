@@ -384,3 +384,19 @@ def test_pytanie_z_tresci_modelu(tresc, pytanie, powod):
     from kompas_mc.rozmowa_api import pytanie_z_tresci
 
     assert pytanie_z_tresci(tresc) == (pytanie, powod)
+
+
+def test_czat_przyklad_z_pola_odpowiada_bez_modelu(klient, naglowek, monkeypatch):
+    """#53: przykład z pola czatu („Jak przekazać ocenę 3 za współpracę?”) dostaje odpowiedź
+    w trybie ekstrakcyjnym – tak jak u jury bez klucza DeepSeek i bez Ollamy."""
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    proces, *_ = _okresowa_z_ocenami(klient, naglowek)
+    r = klient.post(
+        f"/api/procesy/{proces['id']}/rozmowa/czat",
+        headers=naglowek("przelozony1"),
+        json={"pytanie": "Jak przekazać ocenę 3 za współpracę?"},
+    )
+    assert r.status_code == 200, r.text
+    odp = r.json()
+    assert odp["znaleziono"] is True, odp
+    assert any("informacji zwrotnej" in c["cytat"] for c in odp["cytaty"])

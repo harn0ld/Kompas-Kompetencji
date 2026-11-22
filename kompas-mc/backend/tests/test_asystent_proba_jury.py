@@ -25,9 +25,9 @@ JURY = yaml.safe_load((KONF / "pytania-jury.yaml").read_text(encoding="utf-8"))
 FAQ = yaml.safe_load((KONF / "faq.yaml").read_text(encoding="utf-8"))["pozycje"]
 PYTANIA, ODLOZONE = JURY["pytania"], JURY["odlozone"]
 
-# Wynik przy dopisaniu pozycji z próby (22.11.2026): 28/28 pytań bez `czeka_na`.
+# Wynik po scaleniu 53-asystent-jury (FAQ-O22, FAQ-P17; 22.11.2026): 30/30.
 # Test pilnuje, żeby późniejsze zmiany go nie obniżyły.
-MIN_PROBA = 28
+MIN_PROBA = 30
 # Zestaw odłożony przy tym samym stanie: 10/14 (przed poprawkami 1/15). Próg z zapasem
 # jednego pytania, bo na tym zestawie niczego nie stroimy.
 MIN_ODLOZONE = 9

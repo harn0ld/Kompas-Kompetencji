@@ -77,6 +77,17 @@ slownik:
   poprowadzić: rozmowa
   rozmawiać: rozmowa
   zadać: pytania
+  # Potoczne słowa z audytu jak u jury (#53): nie są „nieznanym pojęciem”, dopisują słowa z materiałów.
+  najwcześniej: nie wcześniej niż termin
+  najpóźniej: nie później niż termin
+  grozi: czeka skutki
+  grożą: czeka skutki
+  konsekwencje: czeka skutki
+  kto podlega: obligatoryjnie podlega osoba
+  przekazać ocenę: informacja zwrotna rozmowa oceniająca
+  przekazywać ocenę: informacja zwrotna rozmowa oceniająca
+  przekazanie oceny: informacja zwrotna rozmowa oceniająca
+  powiedzieć o ocenie: informacja zwrotna rozmowa oceniająca
 
 # Odwołanie do przepisu ustawy: we fragmencie objaśnienia (flaga „powołuje ustawę”) i w pytaniu
 # (wskazany artykuł idzie na początek cytatów).

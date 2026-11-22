@@ -29,7 +29,7 @@ pytania:
      pytanie: "Pracownik dostał negatywną ocenę okresową. Kiedy robimy kolejną ocenę?",
      oczekiwana_odpowiedz: "Ponowna ocena po upływie 6 miesięcy od zapoznania się z oceną negatywną.",
      zrodlo: "ustawa art. 81 ust. 9; rozporządzenie z 2016 r. § 7 pkt 2"}
-  - {id: O05, sciezka: okresowa, faq: [FAQ-O22], czeka_na: 53-asystent-jury,
+  - {id: O05, sciezka: okresowa, faq: [FAQ-O22],
      pytanie: "Co grozi urzędnikowi służby cywilnej za dwie negatywne oceny okresowe z rzędu?",
      oczekiwana_odpowiedz: "Rozwiązanie stosunku pracy.",
      zrodlo: "poradnik o ocenie okresowej s. 34"}
@@ -67,7 +67,7 @@ pytania:
      pytanie: "W jakim okresie trzeba dokonać pierwszej oceny – najwcześniej i najpóźniej?",
      oczekiwana_odpowiedz: "Nie wcześniej niż po 8 miesiącach od nawiązania stosunku pracy i nie później niż miesiąc przed końcem umowy.",
      zrodlo: "ustawa art. 38 ust. 1; poradnik o pierwszej ocenie s. 8"}
-  - {id: P02, sciezka: pierwsza, faq: [FAQ-P17], czeka_na: 53-asystent-jury,
+  - {id: P02, sciezka: pierwsza, faq: [FAQ-P17],
      pytanie: "Kto podlega pierwszej ocenie w służbie cywilnej?",
      oczekiwana_odpowiedz: "Osoba, która po raz pierwszy podejmuje pracę w służbie cywilnej, zatrudniona na czas określony 12 miesięcy.",
      zrodlo: "ustawa art. 37 ust. 1 i art. 35 ust. 3; poradnik o pierwszej ocenie s. 6"}
@@ -145,7 +145,7 @@ odlozone:
   - {id: H02, sciezka: okresowa, faq: [FAQ-O24], pytanie: "Czy naczelnik wydziału sam ocenia swoich pracowników, czy robi to dyrektor?"}
   - {id: H03, sciezka: okresowa, faq: [FAQ-O25], pytanie: "Osoba na umowie na zastępstwo – czy robię jej ocenę okresową?"}
   - {id: H04, sciezka: okresowa, faq: [FAQ-O26], pytanie: "Jaki jest skutek negatywnej oceny okresowej dla terminu następnej oceny?"}
-  - {id: H05, sciezka: okresowa, faq: [FAQ-O22], czeka_na: 53-asystent-jury, pytanie: "Czy urzędnik może zostać zwolniony po negatywnych ocenach okresowych?"}
+  - {id: H05, sciezka: okresowa, faq: [FAQ-O22], pytanie: "Czy urzędnik może zostać zwolniony po negatywnych ocenach okresowych?"}
   - {id: H06, sciezka: okresowa, faq: [FAQ-O27], pytanie: "Urlop macierzyński pracownicy trwał pół roku. Kiedy będzie jej ocena okresowa?"}
   - {id: H07, sciezka: okresowa, faq: [FAQ-O28], pytanie: "Czy daję pracownikowi kopię arkusza oceny okresowej?"}
   - {id: H08, sciezka: okresowa, faq: [FAQ-O29], pytanie: "Co oznacza 5 punktów i czy od tego zaczynam ocenę kryterium?"}

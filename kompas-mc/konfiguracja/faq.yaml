@@ -181,6 +181,29 @@ pozycje:
       - {kategoria: PRZEPIS, doc_id: rozp-2015-pierwsza, lokalizator: "§ 11 ust. 2", strona: 3,
          cytat_dosłowny: "oryginał arkusza wraz ze sprawozdaniem i pismami dotyczącymi"}
 
+  - id: FAQ-P17
+    sciezka: pierwsza
+    pytania:
+      - którzy pracownicy muszą przejść pierwszą ocenę
+      - osoby objęte obowiązkiem pierwszej oceny
+      - kto podlega obowiązkowo pierwszej ocenie w urzędzie
+    odpowiedz: Osoba podejmująca po raz pierwszy pracę w służbie cywilnej, z którą zawarto umowę o pracę na czas określony 12 miesięcy (poradnik KPRM, powołuje art. 35 ust. 3 i art. 37 ust. 1 ustawy).
+    adnotacje:
+      - {kategoria: OBJAŚNIENIE_MATERIAŁU, doc_id: poradnik-pierwsza,
+         lokalizator: "rozdz. 3. Kto podlega pierwszej ocenie w służbie cywilnej?", strona: 6,
+         cytat_dosłowny: "pierwszej ocenie obligatoryjnie podlega osoba, o której mowa w art. 35 ust. 3 ustawy"}
+
+  - id: FAQ-P18
+    sciezka: pierwsza
+    pytania:
+      - w jaki sposób omówić z nowym pracownikiem przyznane oceny cząstkowe
+      - informacja zwrotna przy uzasadnieniu pierwszej oceny
+    odpowiedz: Uzasadnienie oceny – najlepiej z konkretnymi przykładami – sporządza się z wykorzystaniem reguł i technik udzielania informacji zwrotnej, tak aby oceniany wiedział, co zmienić w sposobie wykonywania obowiązków.
+    adnotacje:
+      - {kategoria: OBJAŚNIENIE_MATERIAŁU, doc_id: poradnik-pierwsza,
+         lokalizator: "s. 32", strona: 32,
+         cytat_dosłowny: "Sporządzenie uzasadnienia każdej przyznanej oceny powinno się odbywać z wykorzystaniem reguł i technik udzielania informacji zwrotnej."}
+
   # ======================= OCENA OKRESOWA (rozp. 2016) =======================
   - id: FAQ-O01
     sciezka: okresowa
@@ -400,6 +423,28 @@ pozycje:
       - {kategoria: OBJAŚNIENIE_MATERIAŁU, doc_id: poradnik-okresowa,
          lokalizator: "rozdz. 7. Sprzeciw od otrzymanej oceny", strona: 32,
          cytat_dosłowny: "Od oceny okresowej służy sprzeciw do dyrektora generalnego urzędu w terminie 7 dni od dnia zapoznania"}
+
+  - id: FAQ-O22
+    sciezka: okresowa
+    pytania:
+      - skutki drugiej z rzędu negatywnej oceny okresowej urzędnika
+      - następstwa negatywnej oceny okresowej dla pracownika
+    odpowiedz: Po pierwszej negatywnej ocenie przeprowadza się ponowną ocenę; urzędnika służby cywilnej, który otrzyma drugą kolejną negatywną ocenę okresową, czeka rozwiązanie stosunku pracy (poradnik KPRM, powołuje art. 71 ust. 1 pkt 1 ustawy).
+    adnotacje:
+      - {kategoria: OBJAŚNIENIE_MATERIAŁU, doc_id: poradnik-okresowa,
+         lokalizator: "s. 34", strona: 34,
+         cytat_dosłowny: "który otrzyma drugą kolejną negatywną ocenę okresową czeka rozwiązanie stosunku pracy"}
+
+  - id: FAQ-O23
+    sciezka: okresowa
+    pytania:
+      - w jaki sposób omówić z pracownikiem przyznane oceny cząstkowe na rozmowie
+      - informacja zwrotna na rozmowie oceniającej
+    odpowiedz: Na rozmowie oceniającej przełożony przekazuje informację zwrotną o wykonywanej pracy, motywuje i planuje rozwój; rozmowa nie powinna być monologiem oceniającego. Ocenę cząstkową uzasadnij konkretnym przykładem zachowania.
+    adnotacje:
+      - {kategoria: OBJAŚNIENIE_MATERIAŁU, doc_id: poradnik-okresowa,
+         lokalizator: "s. 25", strona: 25,
+         cytat_dosłowny: "Celem rozmowy poprzedzającej przyznanie oceny jest nie tylko ocenienie pracownika i przekazanie mu informacji zwrotnej na temat wykonywanej pracy"}
 
   # ======================= MODEL KOMPETENCJI (obie ścieżki) =======================
   - id: FAQ-M01
