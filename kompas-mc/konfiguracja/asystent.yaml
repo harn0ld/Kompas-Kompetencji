@@ -109,6 +109,7 @@ komunikaty:
   brak_ustawy: Tekstu ustawy o służbie cywilnej nie ma w bazie wiedzy, więc asystent nie cytuje jej przepisów – sprawdź w ustawie.
   ustawa: Fragment poradnika lub arkusza powołuje przepis ustawy o służbie cywilnej; jej tekst jednolity (Dz.U. 2026 poz. 590) jest w bazie wiedzy – zapytaj o wskazany artykuł, np. „art. 83 ustawy”.
   sugestia: Asystent wskazuje fragmenty źródeł; nie podejmuje decyzji o ocenie.
+  podsumowanie: Podsumowanie napisał model AI na podstawie cytowanych źródeł; liczby i daty sprawdzono z tymi źródłami.
   faq: Odpowiedź z przygotowanego zestawu pytań i odpowiedzi; podstawą jest cytowany fragment źródła.
 
 llm:

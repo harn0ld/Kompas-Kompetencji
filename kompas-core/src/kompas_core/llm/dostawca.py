@@ -122,19 +122,24 @@ class Zapisane:
         plik.write_text(json.dumps(dane, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-_INSTRUKCJA = """Odpowiadasz wyłącznie na podstawie podanych fragmentów źródeł.
+_INSTRUKCJA = """Odpowiadasz wyłącznie na podstawie podanych fragmentów źródeł. Fragmenty to dokumenty (przepisy, poradniki, opracowania, instrukcje aplikacji) oraz dane o pracowniku (wszystko, co aplikacja wie o osobie: stanowisko, zadania, notatki, przykłady, oceny). Każde twierdzenie opierasz na fragmencie i zawsze się do niego odnosisz cytatem.
 Zwróć tylko obiekt JSON:
 {"cytaty": [{"fragment_id": "<ID fragmentu>", "cytat": "<dosłowny fragment tekstu>"}],
- "wybor": ["<ID z katalogu>"], "tresc": "<krótka odpowiedź złożona z cytatów albo null>"}
-Zasady: cytat kopiuj znak po znaku z fragmentu o podanym ID. Nie używaj wiedzy spoza
-fragmentów. "wybor" zawiera tylko ID z katalogu. Jeśli fragmenty nie odpowiadają na
-pytanie, zwróć {"cytaty": [], "wybor": [], "tresc": null}."""
+ "wybor": ["<ID z katalogu>"], "tresc": "<krótkie podsumowanie albo null>"}
+Zasady: cytat kopiuj znak po znaku z fragmentu o podanym ID. Nie używaj wiedzy spoza fragmentów. Gdy wiadomość ma wiersz „Podsumowanie: tak”, wpisz w "tresc" krótkie podsumowanie (1–3 zdania) na podstawie cytowanych fragmentów; liczby, daty i terminy przepisuj wyłącznie z cytatów. Gdy ma „Podsumowanie: nie”, "tresc" = null. Gdy ma „Podsumowanie: format z pytania”, wypełnij "tresc" tak, jak opisuje pytanie. "wybor" zawiera tylko ID z katalogu. Jeśli fragmenty nie odpowiadają na pytanie, zwróć {"cytaty": [], "wybor": [], "tresc": null}."""
+
+
+# Asystent formalny dostaje własne krótkie podsumowanie modelu (Karol 22.11). Pozostałe operacje
+# opisują format pola "tresc" w pytaniu (JSON z kwestiami, celami, zdaniami opisu).
+_PODSUMOWANIE = {"asystent_formalny": "tak"}
 
 
 def _wiadomosc(z: Zapytanie) -> str:
     fragmenty = "\n\n".join(f"[{f.id}]\n{f.tekst}" for f in z.fragmenty)
     katalog = ", ".join(z.katalog) if z.katalog else "(brak — nie wybieraj)"
-    return f"Operacja: {z.operacja}\nKatalog: {katalog}\n\nFRAGMENTY:\n{fragmenty}\n\nPYTANIE: {z.pytanie}"
+    podsumowanie = _PODSUMOWANIE.get(z.operacja, "format z pytania")
+    return (f"Operacja: {z.operacja}\nKatalog: {katalog}\nPodsumowanie: {podsumowanie}\n\n"
+            f"FRAGMENTY:\n{fragmenty}\n\nPYTANIE: {z.pytanie}")
 
 
 def _parsuj(tekst: str) -> Odpowiedz:
