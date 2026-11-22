@@ -207,6 +207,21 @@ export function Pulpit({
         <p className="meta">{DZIS}</p>
       </div>
 
+      {/* Pole filtruje listę „Do zrobienia”, więc stoi nad nią; przyklejone do dołu zasłaniało karty (zgłoszenie 226). */}
+      <form className="pole-zapytania" role="search" onSubmit={wyslij}>
+        <Ikona nazwa="szukaj" />
+        <input
+          value={szukaj}
+          onChange={(e) => setSzukaj(e.target.value)}
+          placeholder={zespol ? "Znajdź pracownika albo zapytaj o zasady oceny…" : "Zapytaj o zasady oceny…"}
+          aria-label={zespol ? "Znajdź pracownika albo zapytaj o zasady oceny" : "Zapytaj o zasady oceny"}
+          autoComplete="off"
+        />
+        <button type="submit" className="wyslij" aria-label="Wyślij" disabled={!szukaj.trim()}>
+          <Ikona nazwa="gora" />
+        </button>
+      </form>
+
       {zespol && sprawy && kafle.some((k) => ile(k.f) > 0) && (
         <div className="pulpit-kafle">
           {kafle
@@ -376,22 +391,6 @@ export function Pulpit({
       </div>
 
       {mapa && sprawy && <MapaKompetencji mapa={mapa} ludzie={ludzie} onWybierz={onWybierz} czesc={zespol ? "tabela" : undefined} />}
-
-      <div className="pulpit-pasek">
-        <form className="pole-zapytania" role="search" onSubmit={wyslij}>
-          <Ikona nazwa="szukaj" />
-          <input
-            value={szukaj}
-            onChange={(e) => setSzukaj(e.target.value)}
-            placeholder={zespol ? "Znajdź pracownika albo zapytaj o zasady oceny…" : "Zapytaj o zasady oceny…"}
-            aria-label={zespol ? "Znajdź pracownika albo zapytaj o zasady oceny" : "Zapytaj o zasady oceny"}
-            autoComplete="off"
-          />
-          <button type="submit" className="wyslij" aria-label="Wyślij" disabled={!szukaj.trim()}>
-            <Ikona nazwa="gora" />
-          </button>
-        </form>
-      </div>
     </div>
   );
 }
