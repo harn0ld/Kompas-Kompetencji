@@ -356,3 +356,17 @@ def test_prosciej_przepisuje_odpowiedz_przez_model(asystent):
         asystent.dostawcy = poprzedni
     assert odp.tresc == "Rozmowę wstępną robisz na początku pracy nowej osoby."
     assert any("Prostsza wersja" in u for u in odp.uwagi)
+
+
+def test_prosciej_po_pytaniu_o_rozmowe_bierze_te_same_zrodla(asystent):
+    """Serwer 22.11: „a prościej?” po „jak przeprowadzić rozmowę?” dawało brak źródła, a „wyjaśnij po ludzku”
+    po pytaniu o rozmowę wstępną trafiało w inną pozycję FAQ. Uproszczenie bierze źródła poprzedniego pytania."""
+    for poprzednie, dopytanie in [
+        ("jak przeprowadzić rozmowę?", "a prościej?"),
+        ("Kiedy przeprowadza się rozmowę wstępną?", "wyjaśnij po ludzku"),
+    ]:
+        wzor = asystent.odpowiedz(poprzednie, "pierwsza" if "wstępn" in poprzednie else None)
+        odp = asystent.odpowiedz(dopytanie, "pierwsza" if "wstępn" in poprzednie else None, poprzednie=poprzednie)
+        assert odp.znaleziono and odp.pytanie == dopytanie
+        assert odp.faq_id == wzor.faq_id
+        assert [c.fragment_id for c in odp.cytaty] == [c.fragment_id for c in wzor.cytaty]
