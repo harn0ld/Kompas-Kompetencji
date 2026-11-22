@@ -44,6 +44,7 @@ W polu "tresc" zwróć tekst z obiektem JSON: {"kwestie": ["..."], "argumenty": 
 "kwestie": 2–4 sprawy do omówienia z pracownikiem (np. czego brakuje do oczekiwanego zachowania, gdzie brak
 przykładu, co warto dopytać). "argumenty": 2–4 obserwacje z fragmentów "ocena#…", które przełożony może przytoczyć,
 uzasadniając ocenę. Każdy punkt to jedno krótkie zdanie; fragment, na którym się opiera, zacytuj w "cytaty".
+Liczby i daty przepisuj wyłącznie z fragmentów, które cytujesz; nie podawaj numerów przepisów ani liczb spoza nich.
 Nie proponuj punktów, poziomu ani wyniku oceny i nie wartościuj osoby: decyzja należy do przełożonego."""
 OPERACJA_PRZYGOTOWANIA = "asystent_przygotowanie"
 MAKS_PUNKTOW = 4
@@ -106,6 +107,9 @@ def przygotowanie(
     dostawcy = [_z_limitem(d) for d in asystent.dostawcy if d.tryb != Tryb.EKSTRAKCYJNE]
     if not dostawcy or not oceny:
         return None
+    # Jedna ponowna próba pierwszym modelem przed resztą łańcucha: odpowiedź odrzucona przez walidator
+    # (np. liczba spoza cytatów, serwer 22.11: 1 z 3) zwykle przechodzi za drugim razem.
+    dostawcy = [dostawcy[0], *dostawcy]
     fragmenty = [*oceny, *asystent.fragmenty_przepisow(pytanie, sciezka)]
     try:
         wynik = wywolaj(Zapytanie(

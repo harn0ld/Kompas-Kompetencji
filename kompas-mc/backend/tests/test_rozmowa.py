@@ -462,3 +462,31 @@ def test_przygotowanie_ma_dluzszy_limit_czasu_niz_asystent():
     d = OpenAiZgodny(base_url="https://example.invalid/v1", model="m", zmienna_klucza="X", timeout=30)
     k = _z_limitem(d)
     assert k.timeout == LIMIT_PRZYGOTOWANIA_S == 60 and d.timeout == 30
+
+
+def test_przygotowanie_ponawia_raz_po_odrzuceniu(klient, naglowek):
+    """Zgłoszenie 183: pierwsza odpowiedź modelu odrzucona przez walidator (liczba spoza cytatów) → druga próba
+    tym samym modelem, zanim czat wróci do dotychczasowej ścieżki."""
+    proces, *_ = _okresowa_z_ocenami(klient, naglowek)
+    proby = []
+
+    class Atrapa:
+        nazwa, model, tryb = "atrapa", "test", Tryb.NA_ZYWO
+
+        def odpowiedz(self, zapytanie):
+            proby.append(zapytanie.operacja)
+            f = next(f for f in zapytanie.fragmenty if f.id.startswith("ocena#"))
+            punkt = "Dopytać o przykład z 28 sytuacji." if len(proby) == 1 else "Dopytać o przykład współpracy."
+            return Odpowiedz(cytaty=[Cytat(fragment_id=f.id, cytat=f.tekst[:60])],
+                             tresc={"kwestie": [punkt], "argumenty": []})
+
+    poprzedni = klient.app.state.asystent.dostawcy
+    klient.app.state.asystent.dostawcy = [Atrapa()]
+    try:
+        r = klient.post(f"/api/procesy/{proces['id']}/rozmowa/czat", headers=naglowek("przelozony1"),
+                        json={"pytanie": "Na co zwrócić uwagę w rozmowie z tą osobą?"})
+    finally:
+        klient.app.state.asystent.dostawcy = poprzedni
+    assert r.status_code == 200, r.text
+    assert r.json()["kwestie"] == ["Dopytać o przykład współpracy."]
+    assert proby == ["asystent_przygotowanie", "asystent_przygotowanie"]
