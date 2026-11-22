@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 
 from fastapi import APIRouter, HTTPException, Request
 from kompas_core.auth import Autoryzacja, Uzytkownik
@@ -52,6 +53,28 @@ MAKS_PUNKTOW = 3  # Karol 22.11 09:16: zwięźle, meritum
 # Ogólne pytanie niesie dane wszystkich ocenionych wskaźników: model odpowiada w 12–15 s, czasem ponad 30 s
 # (serwer 22.11). ponytail: stały limit dla tej operacji; osobne pole w asystent.yaml, gdy będzie potrzeba.
 LIMIT_PRZYGOTOWANIA_S = 60
+
+
+# Karol 22.11 09:39: „a co jak napiszę do asystenta hej?” – powitanie i podziękowanie nie są pytaniem do bazy wiedzy.
+_GRZECZNOSCI = {
+    "hej", "hejka", "hejo", "cześć", "czesc", "siema", "witam", "witaj", "dzień dobry", "dzien dobry", "dobry wieczór",
+    "dobry wieczor", "hello", "hi", "halo", "elo", "yo", "test", "dzięki", "dzieki", "dziękuję", "dziekuje", "ok", "okej",
+}
+PODZIEKOWANIE = ("dzięki", "dzieki", "dziękuję", "dziekuje")
+ODPOWIEDZ_POWITANIE = (
+    "Cześć! Pomogę przygotować rozmowę oceniającą na podstawie danych tej oceny i przepisów. Zapytaj na przykład: "
+    "„Jakie kwestie omówić na rozmowie?”, „Jakie argumenty uzasadniają ocenę komunikacji?” albo "
+    "„Jakie pytania zadać o wykorzystywanie wiedzy?”."
+)
+
+
+def grzecznosc(pytanie: str) -> str | None:
+    """Odpowiedź na samo powitanie albo podziękowanie; None = zwykłe pytanie."""
+    t = re.sub(r"[^\w\s]", " ", pytanie.lower()).strip()
+    t = re.sub(r"\s+", " ", t)
+    if t in _GRZECZNOSCI or (t and all(w in _GRZECZNOSCI for w in t.split()) and len(t.split()) <= 3):
+        return "Proszę bardzo. Pytaj śmiało o kolejne kwestie do rozmowy." if t.startswith(PODZIEKOWANIE) else ODPOWIEDZ_POWITANIE
+    return None
 
 
 def fragmenty_oceny(stan, pseudo: Pseudonimizator, osoba_id: str) -> list[Fragment]:
@@ -265,6 +288,11 @@ def router(
             "sciezka": proces.sciezka,
             "wybrane_wskazniki_poziomy_i_decyzje": stan.model_dump(mode="json"),
         }
+        if powitanie := grzecznosc(body.pytanie):
+            return OdpowiedzCzatu(
+                pytanie=body.pytanie, sciezka=proces.sciezka, znaleziono=True, tresc=powitanie,
+                oznaczenie_sugestii=konf.oznaczenie_sugestii,
+            )
         pseudo = Pseudonimizator(qnt)
         przyg = przygotowanie(
             request.app.state.asystent, body.pytanie, proces.sciezka, fragmenty_oceny(stan, pseudo, proces.osoba_id)

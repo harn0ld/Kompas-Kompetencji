@@ -76,7 +76,7 @@ function OdpowiedzCzatu({ odpowiedz }: { odpowiedz: OdpowiedzCzatuRozmowy }) {
   }
   return (
     <div className="odpowiedz">
-      <p className="brak">{odpowiedz.oznaczenie_sugestii}</p>
+      {odpowiedz.cytaty.length > 0 && <p className="brak">{odpowiedz.oznaczenie_sugestii}</p>}
       {odpowiedz.tresc && <p>{odpowiedz.tresc}</p>}
       {/* Zgłoszenie 178: przygotowanie do rozmowy – dwie krótkie listy, każdy punkt oparty na cytowanym fragmencie niżej. */}
       {!!odpowiedz.kwestie?.length && (
@@ -101,6 +101,7 @@ function OdpowiedzCzatu({ odpowiedz }: { odpowiedz: OdpowiedzCzatuRozmowy }) {
       )}
       {/* Karol 22.11 09:16: krótka odpowiedź, a pod nią źródła z możliwością rozwinięcia. Bez listy punktów
           (stara ścieżka) cytaty są odpowiedzią, więc zostają rozwinięte. */}
+      {odpowiedz.cytaty.length > 0 && (
       <details className="zrodla-odpowiedzi" open={!(odpowiedz.kwestie?.length || odpowiedz.argumenty?.length)}>
         <summary>Źródła ({odpowiedz.cytaty.length})</summary>
         {odpowiedz.cytaty.map((cytat) => (
@@ -114,9 +115,12 @@ function OdpowiedzCzatu({ odpowiedz }: { odpowiedz: OdpowiedzCzatuRozmowy }) {
           </article>
         ))}
       </details>
-      <p className="meta">
-        Tryb: {odpowiedz.tryb} · dostawca: {odpowiedz.dostawca}
-      </p>
+      )}
+      {odpowiedz.tryb && (
+        <p className="meta">
+          Tryb: {odpowiedz.tryb} · dostawca: {odpowiedz.dostawca}
+        </p>
+      )}
     </div>
   );
 }
