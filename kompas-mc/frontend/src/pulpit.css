@@ -39,6 +39,8 @@ button.pulpit-wiecej { align-self: flex-start; min-height: 44px; text-align: lef
 }
 @media (hover: hover) and (pointer: fine) {
   .pulpit-kafle button.kafel:hover { background: var(--k-wiersz-hover); }
+  .pulpit-skrot:hover { background: var(--k-wiersz-hover); }
+  .pulpit-oceny button.status:hover { box-shadow: inset 0 0 0 1px currentColor; }
   .pulpit-kafle button.kafel[aria-pressed="true"]:hover { background: var(--k-tab-active); }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -48,9 +50,12 @@ button.pulpit-wiecej { align-self: flex-start; min-height: 44px; text-align: lef
 /* „Mój zespół”: zwarty blok wyrównany do „Do zrobienia” (ten sam wiersz tytułu), liczby i wyniki ocen. */
 .pulpit-zespol { display: flex; flex-direction: column; gap: var(--o-16); padding: var(--o-16); border-radius: var(--r-wiersz); background: var(--k-wiersz); }
 .pulpit-liczby { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--o-12); }
-.pulpit-liczby div { display: flex; flex-direction: column; gap: var(--o-2); }
-.pulpit-liczby dd { margin: 0; font-size: var(--t-value-r); line-height: var(--t-value-l); font-weight: var(--f-semibold); font-variant-numeric: tabular-nums; }
-.pulpit-liczby dt { color: var(--k-text-muted); font-size: var(--t-small-r); line-height: var(--t-small-l); }
+/* Liczby karty zespołu to skróty do „Pracownicy” z filtrem albo grupowaniem (zgłoszenie 187). */
+.pulpit-skrot { display: flex; flex-direction: column; align-items: flex-start; gap: var(--o-2); min-height: 44px; margin: calc(-1 * var(--o-8)); padding: var(--o-8); border: 0; border-radius: var(--r-wiersz); background: none; color: var(--k-text-muted); font-size: var(--t-small-r); line-height: var(--t-small-l); text-align: left; cursor: pointer; }
+.pulpit-skrot strong { color: var(--k-text); font-size: var(--t-value-r); line-height: var(--t-value-l); font-weight: var(--f-semibold); font-variant-numeric: tabular-nums; }
+.pulpit-skrot:active, .pulpit-oceny button.status:active { background: var(--k-wiersz-pressed); }
+.pulpit-skrot:focus-visible, .pulpit-oceny button.status:focus-visible { outline: 2px solid var(--k-focus); outline-offset: 2px; }
+.pulpit-oceny button.status { min-height: 32px; border: 0; cursor: pointer; }
 .pulpit-oceny { display: flex; flex-wrap: wrap; align-items: center; gap: var(--o-8); }
 .pulpit-oceny .kafel-etykieta { flex-basis: 100%; }
 .pulpit .mapa-kompetencji { padding-top: var(--o-8); }

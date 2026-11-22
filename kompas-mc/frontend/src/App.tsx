@@ -20,7 +20,7 @@ import { KartaPracownika } from "./KartaPracownika";
 import { Cele } from "./Cele";
 import { CeleOsoby } from "./CeleOsoby";
 import { MojaSamoocena } from "./Samoocena";
-import { ListaPracownikow } from "./ListaPracownikow";
+import { ListaPracownikow, type Grupowanie } from "./ListaPracownikow";
 import type { FiltrPracownikow } from "./zespol-dane";
 
 
@@ -40,6 +40,7 @@ export default function App() {
   const [samoocena, setSamoocena] = useState<number | null>(null);
   // Filtr listy Pracownicy ustawiany z Zespołu (kliknięcie liczby albo komórki) i z pulpitu.
   const [filtr, setFiltr] = useState<FiltrPracownikow>({});
+  const [grupuj, setGrupuj] = useState<Grupowanie | undefined>();
   const [oceniany, setOceniany] = useState<Pracownik | null>(null);
   const [proces, setProces] = useState<ProcesOceny | null>(null);
   const [etap, setEtap] = useState<Etap>("krok2");
@@ -72,6 +73,7 @@ export default function App() {
   const przejdz = useCallback((w: Widok) => {
     setWidok(w);
     setFiltr({});
+    setGrupuj(undefined);
     setKarta(null);
     setSamoocena(null);
     setOceniany(null);
@@ -79,9 +81,10 @@ export default function App() {
     setEtap("krok2");
   }, []);
 
-  const doPracownikow = useCallback((f: FiltrPracownikow = {}) => {
+  const doPracownikow = useCallback((f: FiltrPracownikow = {}, g?: Grupowanie) => {
     setWidok("pracownicy");
     setFiltr(f);
+    setGrupuj(g);
     setKarta(null);
     setOceniany(null);
   }, []);
@@ -245,14 +248,14 @@ export default function App() {
           onWybierz={setKarta}
           onWyloguj={wyloguj}
           onZespol={() => przejdz("zespol")}
-          onPracownicy={() => przejdz("pracownicy")}
+          onPracownicy={doPracownikow}
           onCele={() => przejdz("cele")}
         />
       )}
       {!karta && !oceniany && widok === "zespol" && <Zespol sesja={sesja} onWyloguj={wyloguj} onPracownicy={doPracownikow} onWybierz={setKarta} />}
       {!karta && !oceniany && widok === "cele" && <Cele sesja={sesja} onWyloguj={wyloguj} />}
       {!karta && !oceniany && widok === "pracownicy" && (
-        <ListaPracownikow sesja={sesja} filtr={filtr} onFiltr={setFiltr} onWyloguj={wyloguj} onWybierz={setKarta} />
+        <ListaPracownikow sesja={sesja} filtr={filtr} onFiltr={setFiltr} onWyloguj={wyloguj} onWybierz={setKarta} grupuj={grupuj} />
       )}
     </Powloka>
   );

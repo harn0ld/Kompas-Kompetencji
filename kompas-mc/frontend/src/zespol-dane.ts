@@ -93,6 +93,8 @@ export interface FiltrPracownikow {
   stan?: "w_toku" | "do_rozpoczecia" | "zagrozony" | "bez_sciezki";
   sciezka?: Sciezka;
   ocena?: "pozytywna" | "negatywna" | "brak";
+  /** Osoby wymagające działania, jak licznik „do zrobienia” na pulpicie (zgłoszenie 187). */
+  doZrobienia?: boolean;
 }
 
 export type StanSprawy = NonNullable<FiltrPracownikow["stan"]>;
@@ -116,6 +118,7 @@ export function pasuje(s: Sprawa, f: FiltrPracownikow): boolean {
   if (f.termin === "wkrotce" && !wkrotce(s)) return false;
   if (f.sciezka && (s.cykl?.sciezka ?? s.proponowana) !== f.sciezka) return false;
   if (f.ocena && (s.osoba.ostatnia_ocena_okresowa?.wynik ?? "brak") !== f.ocena) return false;
+  if (f.doZrobienia && !doZrobienia(s)) return false;
   return true;
 }
 

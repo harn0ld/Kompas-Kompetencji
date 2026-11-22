@@ -17,7 +17,8 @@ import { MapaKompetencji } from "./Kompetencje";
 import { Inicjaly, SzkieletListy, WierszListy } from "./Lista";
 import { Kafel } from "./Wykresy";
 import { Wydra } from "./wydra/Wydra";
-import { data, dni, odmiana, osoby, wedlugKomorek } from "./zespol-dane";
+import { data, dni, odmiana, osoby, wedlugKomorek, type FiltrPracownikow } from "./zespol-dane";
+import type { Grupowanie } from "./ListaPracownikow";
 import "./widoki.css";
 import "./pulpit.css";
 
@@ -81,7 +82,8 @@ export function Pulpit({
   onWybierz: (p: Pracownik) => void;
   onWyloguj: () => void;
   onZespol: () => void;
-  onPracownicy: () => void;
+  /** Lista pracowników z filtrem albo grupowaniem (skróty z karty zespołu, zgłoszenie 187). */
+  onPracownicy: (f?: FiltrPracownikow, g?: Grupowanie) => void;
   /** Konto ocenianego: przejście do „Twoje cele”. */
   onCele?: () => void;
 }) {
@@ -244,7 +246,7 @@ export function Pulpit({
             </button>
           )}
           {zespol && sprawy && !szukaj && wOkresie > 0 && (
-            <button type="button" className="link pulpit-wiecej" onClick={onPracownicy}>
+            <button type="button" className="link pulpit-wiecej" onClick={() => onPracownicy()}>
               {wOkresie} {odmiana(wOkresie, "osoba", "osoby", "osób")} w trakcie okresu oceny · wszyscy pracownicy
             </button>
           )}
@@ -260,31 +262,29 @@ export function Pulpit({
                 </button>
               </div>
               <div className="pulpit-zespol">
-                <dl className="pulpit-liczby">
-                  <div>
-                    <dd>{ludzie.length}</dd>
-                    <dt>{odmiana(ludzie.length, "osoba", "osoby", "osób")}</dt>
-                  </div>
-                  <div>
-                    <dd>{wydzialow}</dd>
-                    <dt>{odmiana(wydzialow, "wydział", "wydziały", "wydziałów")}</dt>
-                  </div>
-                  <div>
-                    <dd>{ile("wszystkie")}</dd>
-                    <dt>do zrobienia</dt>
-                  </div>
-                </dl>
+                <div className="pulpit-liczby">
+                  {[
+                    { n: ludzie.length, opis: odmiana(ludzie.length, "osoba", "osoby", "osób"), idz: () => onPracownicy() },
+                    { n: wydzialow, opis: odmiana(wydzialow, "wydział", "wydziały", "wydziałów"), idz: () => onPracownicy({}, "wydzial") },
+                    { n: ile("wszystkie"), opis: "do zrobienia", idz: () => onPracownicy({ doZrobienia: true }) },
+                  ].map((x) => (
+                    <button key={x.opis} type="button" className="pulpit-skrot" onClick={x.idz}>
+                      <strong>{x.n}</strong>
+                      <span>{x.opis}</span>
+                    </button>
+                  ))}
+                </div>
                 <div className="pulpit-oceny">
                   <span className="kafel-etykieta">Ostatnie oceny</span>
-                  <span className="status pozytywna">
+                  <button type="button" className="status pozytywna" onClick={() => onPracownicy({ ocena: "pozytywna" })}>
                     {ostatnia("pozytywna")} {odmiana(ostatnia("pozytywna"), "pozytywna", "pozytywne", "pozytywnych")}
-                  </span>
-                  <span className="status negatywna">
+                  </button>
+                  <button type="button" className="status negatywna" onClick={() => onPracownicy({ ocena: "negatywna" })}>
                     {ostatnia("negatywna")} {odmiana(ostatnia("negatywna"), "negatywna", "negatywne", "negatywnych")}
-                  </span>
-                  <span className="status neutralna">
+                  </button>
+                  <button type="button" className="status neutralna" onClick={() => onPracownicy({ ocena: "brak" })}>
                     {ludzie.length - ostatnia("pozytywna") - ostatnia("negatywna")} bez oceny
-                  </span>
+                  </button>
                 </div>
               </div>
             </section>
