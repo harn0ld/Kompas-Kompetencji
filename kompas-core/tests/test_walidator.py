@@ -6,6 +6,7 @@ from kompas_core.zrodla import (
     Korpus,
     SourceRef,
     cytat_w_korpusie,
+    cytat_w_tekscie,
     normalizuj,
     waliduj_elementy,
 )
@@ -23,6 +24,14 @@ def przepis(cytat: str, doc_id: str = "ustawa", **kw) -> SourceRef:
 def test_normalizacja_tylko_bialych_znakow_i_dzielenia():
     assert normalizuj("zatrudnio-\nnego  na\tczas") == "zatrudnionego na czas"
     assert normalizuj("Ocena") != normalizuj("ocena")
+
+
+def test_cytat_z_listy_bez_punktora_przechodzi():
+    # poradnik-okresowa s. 25 z PDF: model cytował bez punktora i walidacja odrzucała odpowiedź (22.11)
+    tekst = "rozmowę. W jej trakcie omawia: \n główne obowiązki \n postawa • cele"
+    assert cytat_w_tekscie("W jej trakcie omawia: główne obowiązki postawa cele", tekst)
+    assert cytat_w_tekscie("omawia:  główne obowiązki", tekst)
+    assert not cytat_w_tekscie("W jej trakcie omawia: poboczne obowiązki", tekst)
 
 
 def test_cytat_obecny_przechodzi(korpus):
