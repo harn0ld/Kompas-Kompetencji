@@ -197,3 +197,5 @@ label.etykieta.rozmowa-pytanie textarea { field-sizing: content; min-height: var
 .punkty-przygotowania { display: flex; flex-direction: column; gap: var(--o-4); }
 .punkty-przygotowania ul { margin: 0; padding-left: var(--o-24); display: flex; flex-direction: column; gap: var(--o-4); }
 .punkty-przygotowania li { font-size: var(--t-body-r); line-height: var(--t-body-l); }
+.zrodla-odpowiedzi > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--k-link); font-size: var(--t-body-r); line-height: var(--t-body-l); }
+.zrodla-odpowiedzi[open] > summary { margin-bottom: var(--o-8); }
