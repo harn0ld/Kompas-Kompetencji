@@ -78,6 +78,7 @@ export function Pulpit({
   onZespol,
   onPracownicy,
   onCele,
+  onOdPoczatku,
 }: {
   sesja: Sesja;
   onWybierz: (p: Pracownik) => void;
@@ -87,6 +88,8 @@ export function Pulpit({
   onPracownicy: (f?: FiltrPracownikow, g?: Grupowanie) => void;
   /** Konto ocenianego: przejście do „Twoje cele”. */
   onCele?: () => void;
+  /** Demo (#186, #208): dane osoby skasowane, otwórz jej ocenę od pierwszego etapu. */
+  onOdPoczatku: (p: Pracownik) => void;
 }) {
   const [sprawy, setSprawy] = useState<Sprawa[] | null>(null);
   const [blad, setBlad] = useState<string | null>(null);
@@ -95,8 +98,6 @@ export function Pulpit({
   const [wszystkie, setWszystkie] = useState(false);
   const [rozmowa, setRozmowa] = useState<{ id: number; tekst: string } | null>(null);
   const [mapa, setMapa] = useState<Mapa | null>(null);
-  // Demo (#186): po „Rozpocznij od początku” lista spraw wczytuje się od nowa.
-  const [wczytanie, setWczytanie] = useState(0);
   const [resetowana, setResetowana] = useState<string | null>(null);
   const [komunikat, setKomunikat] = useState<string | null>(null);
   const rola = sesja.uzytkownik.rola;
@@ -129,22 +130,20 @@ export function Pulpit({
     return () => {
       aktualne = false;
     };
-  }, [sesja.token, onWyloguj, wczytanie]);
+  }, [sesja.token, onWyloguj]);
 
+  // Demo (#208): bez potwierdzenia; po skasowaniu danych od razu ekran „Rozpoczęcie oceny” tej osoby.
   async function odPoczatku(p: Pracownik) {
-    const ocena = p.demo_od_poczatku === "pierwsza" ? "pierwszą ocenę" : "ocenę okresową";
-    if (!window.confirm(`Rozpocząć ${ocena} ${p.imie} ${p.nazwisko} od początku? Wszystkie dotychczasowe ustalenia tej osoby (kryteria, oceny, samoocena, rozmowa, cele i notatki) zostaną skasowane.`)) return;
     setResetowana(p.osoba_id);
     setKomunikat(null);
     try {
       await zacznijOdPoczatku(sesja.token, p.osoba_id);
-      setKomunikat(`${p.imie} ${p.nazwisko}: ${ocena} zaczynasz od pierwszego etapu.`);
-      setWczytanie((n) => n + 1);
     } catch {
       setKomunikat(`Nie udało się zacząć oceny ${p.imie} ${p.nazwisko} od początku.`);
-    } finally {
       setResetowana(null);
+      return;
     }
+    onOdPoczatku(p);
   }
 
   // Mapa kompetencji (#33) wymaga dostępu do treści ocen: ma ją przełożony, HR nie.
@@ -241,11 +240,7 @@ export function Pulpit({
             )}
           </div>
           {blad && <p className="blad">{blad}</p>}
-          {komunikat && (
-            <p className="meta" role="status">
-              {komunikat}
-            </p>
-          )}
+          {komunikat && <p className="blad">{komunikat}</p>}
           {!blad && lista === null && <SzkieletListy />}
           {lista?.length === 0 && (
             <p className="meta">
