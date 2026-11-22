@@ -30,3 +30,16 @@ def test_sprzeciw_bez_sciezki_trafia_we_wlasciwa_pozycje(klient, pytanie, faq):
     r = k.post("/api/asystent", headers=h, json={"pytanie": pytanie})
     assert r.status_code == 200, r.text
     assert r.json()["faq_id"] == faq
+
+
+@pytest.mark.parametrize("pytanie", [
+    "jak przeprowadzić rozmowę? robie to pierwszy raz, nie wiem co i jak",
+    "Jak przeprowadzić rozmowę oceniającą?",
+])
+def test_jak_przeprowadzic_rozmowe_bez_sciezki_daje_kroki(klient, pytanie):
+    """Na serwerze 22.11 te pytania trafiały w FAQ-P19 (termin pierwszej oceny) i FAQ-O09 (termin kryteriów)."""
+    k, h = klient
+    r = k.post("/api/asystent", headers=h, json={"pytanie": pytanie})
+    assert r.status_code == 200, r.text
+    assert r.json()["faq_id"] == "FAQ-R07"
+    assert r.json()["tresc"].startswith("Krok po kroku")
