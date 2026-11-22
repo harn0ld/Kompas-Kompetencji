@@ -4,7 +4,7 @@ Logika: problem → zasady → ścieżka (demo) → AI → HR i dokumenty → ar
 
 1. **Kompas Kompetencji.** Przełożony w służbie cywilnej przechodzi ocenę krok po kroku. Każda informacja ma źródło, a decyzja zawsze należy do niego.
 2. **Problem.** Przepisy, model kompetencji, OSP, formularz i terminy leżą w różnych miejscach. Ocena „z wrażenia” zamiast z zachowań daje różne interpretacje u różnych przełożonych.
-3. **Trzy zasady.** (1) Źródło przy każdej informacji: 222 cytaty sprawdzane walidatorem, 0 błędów. (2) Decyduje przełożony: sugestie nigdy nie wpisują oceny. (3) AI odpowiada tylko z bazy albo mówi „brak informacji”.
+3. **Trzy zasady.** (1) Źródło przy każdej informacji: 231 cytatów sprawdzanych walidatorem, 0 błędów. (2) Decyduje przełożony: sugestie nigdy nie wpisują oceny. (3) AI odpowiada tylko z bazy albo mówi „brak informacji”.
 4. **Ścieżka oceny okresowej, kroki 1–2.** OSP → ścieżka i arkusz B/C z przesłankami → kryteria obowiązkowe i do 3 dodatkowych → wskaźniki uzasadnione zadaniami z OSP. Zrzut ekranu.
 5. **Kroki 3–5: model kompetencji w praktyce.** Wybór opisu zachowania i przykład S-D-R → sugerowany poziom (mediana, remis bez wyboru, „brak podstaw” nie obniża) → decyzja przełożonego; uzasadnienie odejścia od sugestii można dopisać (opcjonalne). Zrzut ekranu.
 6. **Asystent formalny.** Pytanie → odpowiedź z cytatem, dokumentem i paragrafem. Pytanie spoza bazy → „brak wystarczających informacji”. Pytanie o artykuł ustawy (np. „art. 83 ustawy”) → cytat z tekstu jednolitego Dz.U. 2026 poz. 590. Łańcuch dostawców z `asystent.yaml` (DeepSeek v4 Flash przez Scaleway w UE → Ollama → ekstrakcyjny) z walidacją cytatów; na ekranie tylko zweryfikowane cytaty. Zrzut ekranu.
