@@ -6,7 +6,7 @@ Kompas Kompetencji prowadzi przełożonego w służbie cywilnej krok po kroku pr
 
 Działamy według trzech zasad:
 
-1. **Każda informacja ma źródło.** Reguła, kryterium, termin i odpowiedź asystenta wskazują dokument, paragraf lub komórkę i dosłowny cytat. Walidator `kompas-waliduj` sprawdza, że każdy cytat występuje w materiałach MC (222 cytaty, 0 błędów). Gdy materiałów brakuje albo przeczą sobie nawzajem, aplikacja mówi to wprost.
+1. **Każda informacja ma źródło.** Reguła, kryterium, termin i odpowiedź asystenta wskazują dokument, paragraf lub komórkę i dosłowny cytat. Walidator `kompas-waliduj` sprawdza, że każdy cytat występuje w materiałach MC (231 cytatów, 0 błędów). Gdy materiałów brakuje albo przeczą sobie nawzajem, aplikacja mówi to wprost.
 2. **Decyzję podejmuje przełożony.** System proponuje poziom kompetencji, kryteria dodatkowe, pytania do rozmowy i formy rozwoju. Nigdy nie wpisuje oceny ani treści dokumentu.
 3. **AI odpowiada tylko z bazy wiedzy.** Asystent formalny cytuje przepisy i poradniki. Na pytanie spoza bazy odpowiada „brak wystarczających informacji w bazie wiedzy”. Ustawę o służbie cywilnej cytuje z tekstu jednolitego (Dz.U. 2026 poz. 590, stan prawny na 14.04.2026), także artykuł wskazany w pytaniu.
 

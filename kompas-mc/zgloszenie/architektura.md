@@ -8,7 +8,7 @@
 | Interfejs | **React + TypeScript + Vite**, przeglądarka na komputerze i tablecie (bez smartfonów, zgodnie z zadaniem) |
 | Dokumenty | ReportLab (PDF z polskimi znakami), pypdf i openpyxl (ekstrakcja z PDF, DOCX i XLSX) |
 | AI | BM25 na rdzeniach słów (własna implementacja, bez wektorów); łańcuch dostawców `LlmProvider` z `asystent.yaml`: DeepSeek v4 Flash przez Scaleway Generative APIs w UE (API zgodne z OpenAI, klucz `SCALEWAY_API_KEY`) → Ollama `qwen3:8b` → tryb ekstrakcyjny |
-| Jakość | pytest (394 testy backendu MC, 101 testów core), 14 plików testów e2e (Playwright, jasny i ciemny motyw), walidator cytatów `kompas-waliduj` (222 cytaty, 0 błędów); wszystko uruchamiane ręcznie |
+| Jakość | pytest (407 testów backendu MC, 101 testów core), 14 plików testów e2e (Playwright, jasny i ciemny motyw), walidator cytatów `kompas-waliduj` (231 cytatów, 0 błędów); wszystko uruchamiane ręcznie |
 
 Wszystkie biblioteki są open source i nie wymagają płatnych usług.
 

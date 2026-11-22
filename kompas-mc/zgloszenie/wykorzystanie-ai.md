@@ -21,7 +21,7 @@ Wygrywa pierwsza odpowiedź, której cytaty przejdą walidację. Brak klucza, si
 
 ## Kontrola jakości i bezpieczeństwa AI
 
-- **Walidator cytatów** (`kompas-waliduj`, uruchamiany ręcznie) sprawdza każdy cytat w konfiguracji i w FAQ dosłownie w korpusie. Normalizuje tylko białe znaki i dzielenie wyrazów. Ostatni przebieg (22.11.2026): 214 elementów, 222 cytaty, 0 błędów. Cytat FAQ, którego nie ma w korpusie, zatrzymuje też start API.
+- **Walidator cytatów** (`kompas-waliduj`, uruchamiany ręcznie) sprawdza każdy cytat w konfiguracji i w FAQ dosłownie w korpusie. Normalizuje tylko białe znaki i dzielenie wyrazów. Ostatni przebieg (22.11.2026): 219 elementów, 231 cytatów, 0 błędów. Cytat FAQ, którego nie ma w korpusie, zatrzymuje też start API.
 - **Walidacja odpowiedzi LLM** (`kompas_core.llm.wywolaj`): każdy cytat musi pochodzić z fragmentu przekazanego do modelu. W przeciwnym razie odpowiedź jest odrzucana, zalogowana i łańcuch przechodzi do następnego dostawcy (test z atrapą zmyślającą cytat).
 - **Log każdego wywołania** (`backend/dane/llm.jsonl`): tryb (na żywo / zapisane / ekstrakcyjne), model, wersja promptu, ID użytych fragmentów, wynik walidacji. Błąd zapisu tego pliku jest zgłaszany przez `logging` (stderr procesu API) i nie przerywa odpowiedzi.
 - **Pytania kontrolne** (`pytania-kontrolne.yaml`): 22 pytania z bazy z oczekiwanym dokumentem i paragrafem oraz 6 pytań spoza bazy, które muszą dostać „brak informacji”. Uruchamia je `pytest` (`tests/test_asystent_formalny.py`); wynik w trybie ekstrakcyjnym: 22/22 i 6/6.
