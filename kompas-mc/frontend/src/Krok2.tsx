@@ -427,6 +427,7 @@ export function Krok2({
               onZapisano={(po) => setDane((d) => (d && po.krok2 ? { ...d, wybor: po.krok2 } : d))}
               onDalej={onDalej}
               onPracownik={onPracownik}
+              demo={Boolean(osoba.demo_od_poczatku)}
             />
           ) : proces.sciezka === "pierwsza" ? (
             <RozmowaWstepna token={token} procesId={proces.id} moznaProwadzic={moznaProwadzic} onPracownik={onPracownik} />
