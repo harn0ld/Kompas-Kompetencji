@@ -230,7 +230,8 @@ def test_czat_ma_kontekst_procesu_bez_danych_identyfikujacych(klient, naglowek):
     odp = r.json()
     assert odp["tryb"] == "NA_ŻYWO" and odp["cytaty"][0]["lokalizator"]
     assert "Sugestia asystenta" in odp["oznaczenie_sugestii"]
-    prompt = zapytania[0].pytanie
+    # Atrapa nie zwraca JSON-u z kwestiami, więc czat przygotowania (#178) oddaje pytanie dotychczasowej ścieżce.
+    prompt = next(z for z in zapytania if z.operacja == "asystent_formalny").pytanie
     assert "KONTEKST PROCESU" in prompt and "wybrane_wskazniki" in prompt
     assert "P-104" not in prompt and "P-001" not in prompt
     assert "Michał" not in prompt and "Wójcik-Demo" not in prompt
@@ -400,3 +401,52 @@ def test_czat_przyklad_z_pola_odpowiada_bez_modelu(klient, naglowek, monkeypatch
     odp = r.json()
     assert odp["znaleziono"] is True, odp
     assert any("informacji zwrotnej" in c["cytat"] for c in odp["cytaty"])
+
+
+def _czat_z_atrapa(klient, naglowek, tresc_modelu):
+    proces, *_ = _okresowa_z_ocenami(klient, naglowek)
+    zapytania = []
+
+    class Atrapa:
+        nazwa, model, tryb = "atrapa", "test", Tryb.NA_ZYWO
+
+        def odpowiedz(self, zapytanie):
+            zapytania.append(zapytanie)
+            ocena = [f for f in zapytanie.fragmenty if f.id.startswith("ocena#")]
+            f = ocena[0] if ocena else zapytanie.fragmenty[0]
+            tresc = tresc_modelu if ocena else "Odpowiedź ze źródeł."
+            return Odpowiedz(cytaty=[Cytat(fragment_id=f.id, cytat=f.tekst[:60])], tresc=tresc)
+
+    poprzedni = klient.app.state.asystent.dostawcy
+    klient.app.state.asystent.dostawcy = [Atrapa()]
+    try:
+        r = klient.post(f"/api/procesy/{proces['id']}/rozmowa/czat", headers=naglowek("przelozony1"),
+                        json={"pytanie": "Jakie kwestie omówić i jakie argumenty uzasadniają ocenę komunikacji?"})
+    finally:
+        klient.app.state.asystent.dostawcy = poprzedni
+    assert r.status_code == 200, r.text
+    return r.json(), zapytania
+
+
+def test_czat_przygotowania_kwestie_i_argumenty_z_danych_oceny(klient, naglowek):
+    """#178: na pytanie o tę osobę model cytuje dane oceny (ocena#…) i odpowiada kwestiami i argumentami."""
+    tresc = {"kwestie": ["Dopytać o przykład współpracy z innymi komórkami."],
+             "argumenty": ["Przykład z okresu: uzgodnienie stanowiska z trzema wydziałami w terminie."]}
+    odp, zapytania = _czat_z_atrapa(klient, naglowek, tresc)
+    assert odp["kwestie"] == tresc["kwestie"] and odp["argumenty"] == tresc["argumenty"]
+    assert odp["tryb"] == "NA_ŻYWO" and odp["cytaty"][0]["dokument"] == "Bieżąca ocena (dane z aplikacji)"
+    z = next(z for z in zapytania if z.operacja == "asystent_przygotowanie")
+    oceny = [f for f in z.fragmenty if f.id.startswith("ocena#")]
+    assert oceny and any(not f.id.startswith("ocena#") for f in z.fragmenty), "dane oceny obok przepisów"
+    tekst = z.pytanie + " ".join(f.tekst for f in oceny)
+    for zakazane in ("P-104", "Michał", "Wójcik-Demo", "Marta", "Kowalczyk-Demo"):
+        assert zakazane not in tekst, zakazane
+    assert not any("punkt" in f.tekst for f in oceny), "dane oceny bez punktów"
+
+
+def test_czat_przygotowania_nie_podsuwa_oceny(klient, naglowek):
+    """Tekst modelu z propozycją punktów nie trafia do przełożonego: zostaje dotychczasowa ścieżka czatu."""
+    tresc = {"kwestie": ["Pracownik zasługuje na 7 punktów za komunikację."], "argumenty": []}
+    odp, zapytania = _czat_z_atrapa(klient, naglowek, tresc)
+    assert odp["kwestie"] == [] and odp["argumenty"] == []
+    assert any(z.operacja == "asystent_formalny" for z in zapytania)

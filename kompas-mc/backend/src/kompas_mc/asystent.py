@@ -478,6 +478,17 @@ class Asystent:
 
     # --- cytat ------------------------------------------------------------------------
 
+    def fragmenty_przepisow(self, pytanie: str, sciezka: Sciezka | None) -> list[Fragment]:
+        """Najlepsze fragmenty korpusu dla pytania, bez progów odmowy: przepisy obok danych oceny w czacie
+        przygotowania (#178), gdzie odpowiedź opiera się głównie na danych tej oceny."""
+        zapytanie = self._tresc(self._rozwin(pytanie)[0])
+        if not zapytanie:
+            return []
+        return [f for _, f in self._ranking(zapytanie, set(self.korpus.doc_ids_dla(sciezka)))[: self.konf.cytaty]]
+
+    def cytat_fragmentu(self, f: Fragment, pytanie: str) -> CytatAsystenta:
+        return self._cytat(f, f.tekst, self._tresc(self._rozwin(pytanie)[0]), None)
+
     def _cytat(
         self, f: Fragment, tekst: str, zapytanie: list[str], faq: _PozycjaFaq | None,
         caly: bool = False,

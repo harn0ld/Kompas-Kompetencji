@@ -78,6 +78,27 @@ function OdpowiedzCzatu({ odpowiedz }: { odpowiedz: OdpowiedzCzatuRozmowy }) {
     <div className="odpowiedz">
       <p className="brak">{odpowiedz.oznaczenie_sugestii}</p>
       {odpowiedz.tresc && <p>{odpowiedz.tresc}</p>}
+      {/* Zgłoszenie 178: przygotowanie do rozmowy – dwie krótkie listy, każdy punkt oparty na cytowanym fragmencie niżej. */}
+      {!!odpowiedz.kwestie?.length && (
+        <div className="punkty-przygotowania">
+          <span className="kafel-etykieta">Do omówienia</span>
+          <ul>
+            {odpowiedz.kwestie.map((k) => (
+              <li key={k}>{k}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {!!odpowiedz.argumenty?.length && (
+        <div className="punkty-przygotowania">
+          <span className="kafel-etykieta">Argumenty z przebiegu oceny</span>
+          <ul>
+            {odpowiedz.argumenty.map((a) => (
+              <li key={a}>{a}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       {odpowiedz.cytaty.map((cytat) => (
         <article className="cytat" key={cytat.fragment_id}>
           <div className="zrodlo">

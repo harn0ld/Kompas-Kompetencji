@@ -192,3 +192,8 @@ label.etykieta.rozmowa-pytanie textarea { field-sizing: content; min-height: var
 .oc-zasady { padding: var(--o-16); border-radius: var(--r-wiersz); background: var(--k-wiersz); }
 .oc-pytanie-akcje { display: flex; flex-wrap: wrap; gap: var(--o-16); }
 .oc-informacja { display: flex; flex-direction: column; gap: var(--o-16); }
+
+/* Czat przygotowania (zgłoszenie 178): kwestie i argumenty jako dwie krótkie listy nad cytatami. */
+.punkty-przygotowania { display: flex; flex-direction: column; gap: var(--o-4); }
+.punkty-przygotowania ul { margin: 0; padding-left: var(--o-24); display: flex; flex-direction: column; gap: var(--o-4); }
+.punkty-przygotowania li { font-size: var(--t-body-r); line-height: var(--t-body-l); }

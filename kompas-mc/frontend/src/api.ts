@@ -731,6 +731,9 @@ export async function przygotujRozmowe(token: string, procesId: number, dane: Da
 
 export interface OdpowiedzCzatuRozmowy extends OdpowiedzAsystenta {
   oznaczenie_sugestii: string;
+  /** Przygotowanie do rozmowy (zgłoszenie 178): sprawy do omówienia i argumenty z danych tej oceny. */
+  kwestie?: string[];
+  argumenty?: string[];
 }
 
 export async function pytajWczacieRozmowy(
