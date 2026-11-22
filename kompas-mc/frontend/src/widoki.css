@@ -52,7 +52,7 @@ button.kafel:active { background: var(--k-wiersz-pressed); }
 
 /* Karta pracownika: nagłówek z inicjałami, dwie kolumny (treść i bok 320 px z „Następny krok”). */
 .karta { gap: var(--o-24); }
-.karta button.link.wstecz { align-self: flex-start; display: inline-flex; align-items: center; gap: var(--o-4); min-height: 44px; text-decoration: none; }
+.karta button.link.wstecz, .zespol button.link.wstecz { align-self: flex-start; display: inline-flex; align-items: center; gap: var(--o-4); min-height: 44px; text-decoration: none; }
 .karta-glowa { display: flex; align-items: flex-start; gap: var(--o-16); }
 .karta-glowa .opis { margin: var(--o-4) 0 0; font-size: var(--t-body-r); line-height: var(--t-body-l); }
 .inicjaly.duze { width: 56px; height: 56px; font-size: var(--t-ui-r); }

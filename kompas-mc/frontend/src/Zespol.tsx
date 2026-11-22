@@ -347,7 +347,18 @@ export function Zespol({
   onWybierz?: (p: Pracownik) => void;
 }) {
   const { sprawy, blad } = useSprawy(sesja, onWyloguj);
-  const [wybor, setWybor] = useState<Wybor>({});
+  const [wybor, ustawWybor] = useState<Wybor>({});
+  // Zgłoszenie 189: „Wróć” jak na karcie pracownika – wraca do zakresu, z którego otwarto bieżący
+  // (wydział otwarty z departamentu wraca do departamentu, otwarty z „Całego zespołu” – do całości).
+  const [historia, setHistoria] = useState<Wybor[]>([]);
+  const setWybor = (nowy: Wybor) => {
+    setHistoria((h) => [...h, wybor]);
+    ustawWybor(nowy);
+  };
+  const wroc = () => {
+    ustawWybor(historia[historia.length - 1] ?? {});
+    setHistoria((h) => h.slice(0, -1));
+  };
   // Mapa kompetencji (#33) tylko dla przełożonego: HR nie ma prawa do treści ocen (zadanie MC, minimalizacja danych).
   const [mapa, setMapa] = useState<Mapa | null>(null);
   const przelozony = sesja.uzytkownik.rola === "przelozony";
@@ -411,6 +422,12 @@ export function Zespol({
 
   return (
     <div className="widok zespol">
+      {wybor.departament && (
+        <button type="button" className="link wstecz" onClick={wroc}>
+          <Ikona nazwa="wstecz" rozmiar={20} />
+          Wróć
+        </button>
+      )}
       <div className="naglowek-widoku">
         <div className="wiersz-tytulu">
           <h1>Zespół</h1>
