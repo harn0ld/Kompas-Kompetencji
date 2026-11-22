@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import re
 from pathlib import Path
+from uuid import uuid4
 
 import pytest
 from playwright.sync_api import Page, expect, sync_playwright
@@ -155,17 +156,49 @@ def test_tabela_przelozony(przegladarka):
     page.close()
 
 
-def test_oceniany_widzi_siebie_bez_filtrow(przegladarka):
+def test_twoje_dane_otwieraja_karte_ze_wszystkimi_celami(przegladarka):
     p, b = przegladarka
+    api = p.request.new_context(base_url=API)
+    try:
+        r = api.post("/api/auth/login", data={"login": "oceniany", "hasło": "demo"})
+        assert r.ok, r.text()
+        h = {"authorization": f"Bearer {r.json()['token']}"}
+        ja = api.get("/api/ja", headers=h).json()
+        ludzie = api.get("/api/pracownicy", headers=h).json()
+        osoba = next(o for o in ludzie if o["osoba_id"] == ja["osoba_id"])
+        nazwy = [f"Cel odbioru {uuid4()}" for _ in range(4)]
+        for nazwa in nazwy:
+            r = api.post(
+                f"/api/pracownicy/{osoba['osoba_id']}/cele",
+                headers=h,
+                data={"nazwa": nazwa, "miernik": "1 ukończone szkolenie", "termin": "2027-06-30"},
+            )
+            assert r.status == 201, r.text()
+    finally:
+        api.dispose()
+
     page = b.new_page(viewport={"width": 1440, "height": 900}, color_scheme=TRYB)
-    page.goto(URL)
-    page.fill('input[aria-label="Login"]', "oceniany")
-    page.fill('input[aria-label="Hasło"]', "demo")
-    page.click("form.logowanie-formularz button")
-    page.locator("nav.menu button.poz", has_text="Twoje dane").click()
-    expect(page.locator("tbody tr.wiersz-osoby")).to_have_count(1)
-    expect(page.locator(".listwa")).to_have_count(0)
-    page.close()
+    try:
+        page.goto(URL)
+        page.get_by_label("Login").fill("oceniany")
+        page.get_by_label("Hasło").fill("demo")
+        page.click("form.logowanie-formularz button")
+        page.get_by_role("button", name="Twoje dane").click()
+        expect(page.locator("h1")).to_have_text(f"{osoba['imie']} {osoba['nazwisko']}")
+        expect(page.locator("table.tabela-pracownikow")).to_have_count(0)
+        cele = page.locator("section.cele")
+        expect(cele.get_by_role("heading", name="Cele rozwojowe")).to_be_visible()
+        for nazwa in nazwy:
+            expect(cele.get_by_role("button", name=re.compile(nazwa))).to_be_visible()
+        expect(cele.get_by_role("button", name=re.compile(r"^Pokaż wszystkie"))).to_have_count(0)
+
+        ostatni = cele.locator(".cel", has_text=nazwy[-1])
+        przycisk = ostatni.get_by_role("button", name=re.compile(nazwy[-1]))
+        przycisk.click()
+        expect(przycisk).to_have_attribute("aria-expanded", "true")
+        expect(ostatni.locator(".cel-cialo")).to_be_visible()
+    finally:
+        page.close()
 
 
 def test_tysiac_osob_stronicowanie(przegladarka):

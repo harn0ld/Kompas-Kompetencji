@@ -87,7 +87,7 @@ export function KartaPracownika({
 }: {
   sesja: Sesja;
   osoba: Pracownik;
-  onWroc: () => void;
+  onWroc?: () => void;
   /** Proces w toku (#49): App otwiera jego bieżący krok; null = krok 1; "krok2" = kryteria procesu (etap na karcie, #55). */
   onOcen: (proces: ProcesOceny | null, etap?: "krok2" | "ocena") => void;
   /** Pracownik otwiera „Moją samoocenę” procesu (#9). */
@@ -162,10 +162,12 @@ export function KartaPracownika({
 
   return (
     <div className="widok karta">
-      <button type="button" className="link wstecz" onClick={onWroc}>
-        <Ikona nazwa="wstecz" rozmiar={20} />
-        Wróć
-      </button>
+      {onWroc && (
+        <button type="button" className="link wstecz" onClick={onWroc}>
+          <Ikona nazwa="wstecz" rozmiar={20} />
+          Wróć
+        </button>
+      )}
 
       <div className="karta-glowa">
         <span className="inicjaly duze" aria-hidden="true">

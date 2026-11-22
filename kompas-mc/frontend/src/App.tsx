@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { KLUCZ_SESJI, pobierzZrodla, type Zrodla } from "./api";
+import { KLUCZ_SESJI, pobierzPracownikow, pobierzZrodla, type Zrodla } from "./api";
 import { Logowanie, type Sesja } from "./Konto";
 import { Krok1 } from "./Krok1";
 import { Krok2 } from "./Krok2";
@@ -21,6 +21,7 @@ import { Cele } from "./Cele";
 import { CeleOsoby } from "./CeleOsoby";
 import { MojaSamoocena } from "./Samoocena";
 import { ListaPracownikow, type Grupowanie } from "./ListaPracownikow";
+import { SzkieletListy } from "./Lista";
 import type { FiltrPracownikow } from "./zespol-dane";
 
 
@@ -35,7 +36,9 @@ export default function App() {
   const [asystent, setAsystent] = useState(false);
   const [pytanie, setPytanie] = useState<{ id: number; tekst: string } | null>(null);
   // Karta pracownika otwiera się przed krokiem 1; „Następny krok” na karcie ustawia ocenianego.
-  const [karta, setKarta] = useState<Pracownik | null>(null);
+  const [wybranaKarta, setKarta] = useState<Pracownik | null>(null);
+  const [mojaKarta, setMojaKarta] = useState<Pracownik | null>(null);
+  const [bladMojejKarty, setBladMojejKarty] = useState<string | null>(null);
   // „Moja samoocena” (#9): proces otwarty z karty na koncie pracownika.
   const [samoocena, setSamoocena] = useState<number | null>(null);
   // Filtr listy Pracownicy ustawiany z Zespołu (kliknięcie liczby albo komórki) i z pulpitu.
@@ -99,6 +102,38 @@ export default function App() {
     pobierzZrodla().then(setZrodla).catch(() => setBlad("Brak połączenia z API (port 8002)."));
   }, []);
 
+  const wlasneDane = widok === "pracownicy" && sesja?.uzytkownik.rola === "oceniany";
+  const token = sesja?.token;
+  const osobaId = sesja?.uzytkownik.osoba_id;
+  const karta = wlasneDane ? mojaKarta : wybranaKarta;
+
+  useEffect(() => {
+    setMojaKarta(null);
+    setBladMojejKarty(null);
+    if (!wlasneDane || !token) return;
+    if (!osobaId) {
+      setBladMojejKarty("Do konta nie przypisano karty pracownika.");
+      return;
+    }
+
+    let aktualne = true;
+    pobierzPracownikow(token)
+      .then((pracownicy) => {
+        if (!aktualne) return;
+        const pracownik = pracownicy.find((p) => p.osoba_id === osobaId);
+        if (pracownik) setMojaKarta(pracownik);
+        else setBladMojejKarty("Nie znaleziono karty pracownika przypisanej do konta.");
+      })
+      .catch((err) => {
+        if (!aktualne) return;
+        if (String(err).includes("401")) wyloguj();
+        else setBladMojejKarty("Nie udało się pobrać karty pracownika.");
+      });
+    return () => {
+      aktualne = false;
+    };
+  }, [wlasneDane, token, osobaId, wyloguj]);
+
   if (!sesja) {
     return (
       <main className="logowanie">
@@ -108,6 +143,7 @@ export default function App() {
   }
 
   const prowadzi = sesja.uzytkownik.rola === "przelozony";
+  const maksCelowNaKarcie = sesja.uzytkownik.rola === "oceniany" ? undefined : 3;
   // Panel źródeł i braków oraz panel procesów widzi tylko HR/administrator (API też to egzekwuje).
   const widokZrodel = widok === "zrodla" && sesja.uzytkownik.rola === "hr";
   const widokProcesow = widok === "procesy" && sesja.uzytkownik.rola === "hr";
@@ -227,12 +263,12 @@ export default function App() {
         <KartaPracownika
           sesja={sesja}
           osoba={karta}
-          onWroc={() => setKarta(null)}
+          onWroc={wlasneDane ? undefined : () => setKarta(null)}
           onOcen={(p, e) => otworzProces(karta, p, e)}
           onSamoocena={setSamoocena}
           onZapytaj={zapytajAsystenta}
           onWyloguj={wyloguj}
-          cele={<CeleOsoby sesja={sesja} osoba={karta} maks={3} />}
+          cele={<CeleOsoby sesja={sesja} osoba={karta} maks={maksCelowNaKarcie} />}
         />
       )}
       {!karta && !oceniany && widokZrodel && <h1 className="tytul-widoku">Źródła i braki</h1>}
@@ -254,7 +290,13 @@ export default function App() {
       )}
       {!karta && !oceniany && widok === "zespol" && <Zespol sesja={sesja} onWyloguj={wyloguj} onPracownicy={doPracownikow} onWybierz={setKarta} />}
       {!karta && !oceniany && widok === "cele" && <Cele sesja={sesja} onWyloguj={wyloguj} />}
-      {!karta && !oceniany && widok === "pracownicy" && (
+      {!karta && wlasneDane && (
+        <div className="widok">
+          <h1 className="tytul-widoku">Twoje dane</h1>
+          {bladMojejKarty ? <p className="blad" role="alert">{bladMojejKarty}</p> : <SzkieletListy wiersze={2} />}
+        </div>
+      )}
+      {!karta && !oceniany && widok === "pracownicy" && !wlasneDane && (
         <ListaPracownikow sesja={sesja} filtr={filtr} onFiltr={setFiltr} onWyloguj={wyloguj} onWybierz={setKarta} grupuj={grupuj} />
       )}
     </Powloka>
