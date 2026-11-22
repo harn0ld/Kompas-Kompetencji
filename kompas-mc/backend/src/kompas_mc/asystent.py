@@ -226,6 +226,12 @@ class Asystent:
         Dopytanie bez własnych pojęć („a prościej?”) szuka w źródłach razem z nim; prośba o prostszą
         wersję przepisuje odpowiedź prostym językiem przez model, z tymi samymi cytatami (Karol 22.11)."""
         uprosc = bool(self._UPROSC.search(pytanie))
+        if uprosc and poprzednie:
+            # „a prościej?” to prośba o tę samą odpowiedź prostszym językiem: źródła szukamy po poprzednim
+            # pytaniu, nie po sklejce (sklejka trafiała w inną pozycję FAQ albo w brak źródła; serwer 22.11).
+            prosciej = self._odpowiedz(poprzednie.strip(), sciezka, kontekst, True)
+            if prosciej.znaleziono:
+                return prosciej.model_copy(update={"pytanie": pytanie})
         wynik = self._odpowiedz(pytanie, sciezka, kontekst, uprosc)
         if not wynik.znaleziono and poprzednie:
             ponownie = self._odpowiedz(f"{poprzednie.strip()} {pytanie}", sciezka, kontekst, uprosc)
