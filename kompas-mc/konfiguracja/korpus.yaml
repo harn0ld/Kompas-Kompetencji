@@ -1,4 +1,4 @@
-# Korpus aplikacji. Źródła: wyłącznie folder „materialy mc” (tylko do odczytu).
+# Korpus aplikacji. Źródła: folder „materialy mc” (tylko do odczytu) oraz instrukcja obsługi aplikacji (ostatni dokument).
 # Ścieżki plików są względne wobec tego pliku. Inny manifest: zmienna KOMPAS_MC_MANIFEST.
 #
 # Pola aplikacji (core czyta tylko doc_id, doc_version i plik):
@@ -107,6 +107,18 @@ dokumenty:
     sciezka: wspolne
     kategoria: OBJAŚNIENIE_MATERIAŁU
     podzial: strony
+    asystent: false
+
+  # Instrukcja obsługi aplikacji: karty „który ekran, który przycisk” i karta „Co potrafi asystent”.
+  # Nie pochodzi z materiałów MC, opisuje ekrany Kompasu (jedna karta = jeden akapit). Poza zwykłym
+  # wyszukiwaniem (asystent: false), żeby nie mieszała się z przepisami; model dostaje ją, gdy dopasowanie
+  # słów nic nie dało (asystent.yaml: instrukcja).
+  - doc_id: instrukcja-kompas
+    doc_version: "1"
+    nazwa: Instrukcja obsługi Kompasu
+    plik: "instrukcja-obslugi.docx"
+    sciezka: wspolne
+    kategoria: FUNKCJA_APLIKACJI
     asystent: false
 
 # Plik, który jest fragmentem innego źródła. Nie jest osobnym źródłem: ładowanie

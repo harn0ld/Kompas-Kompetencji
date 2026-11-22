@@ -29,6 +29,7 @@ const KATEGORIE: Record<string, { tekst: string; klasa: string }> = {
   PRZEPIS: { tekst: "Przepis", klasa: "przepis" },
   "OBJAŚNIENIE_MATERIAŁU": { tekst: "Materiał", klasa: "" },
   DECYZJA_PROJEKTOWA: { tekst: "Zasada aplikacji", klasa: "zasada" },
+  FUNKCJA_APLIKACJI: { tekst: "Instrukcja aplikacji", klasa: "zasada" },
   "BRAK_ŹRÓDŁA": { tekst: "Brak źródła", klasa: "typ-brak" },
 };
 
