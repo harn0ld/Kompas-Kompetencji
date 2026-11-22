@@ -490,3 +490,22 @@ def test_przygotowanie_ponawia_raz_po_odrzuceniu(klient, naglowek):
     assert r.status_code == 200, r.text
     assert r.json()["kwestie"] == ["Dopytać o przykład współpracy."]
     assert proby == ["asystent_przygotowanie", "asystent_przygotowanie"]
+
+
+@pytest.mark.parametrize("pytanie, poczatek", [
+    ("hej", "Cześć!"), ("Dzień dobry!", "Cześć!"), ("cześć :)", "Cześć!"), ("Dzięki", "Proszę bardzo"),
+])
+def test_czat_odpowiada_na_powitanie_bez_odmowy(klient, naglowek, pytanie, poczatek):
+    """Zgłoszenie 207 (Karol 22.11 09:39: „a co jak napiszę do asystenta hej?”): powitanie to nie pytanie do bazy."""
+    proces, *_ = _okresowa_z_ocenami(klient, naglowek)
+    r = klient.post(f"/api/procesy/{proces['id']}/rozmowa/czat", headers=naglowek("przelozony1"), json={"pytanie": pytanie})
+    odp = r.json()
+    assert r.status_code == 200 and odp["znaleziono"] is True and odp["tresc"].startswith(poczatek), odp
+    assert odp["cytaty"] == [] and not odp.get("nieznane_pojecia")
+
+
+def test_powitanie_z_pytaniem_to_zwykle_pytanie():
+    from kompas_mc.rozmowa_api import grzecznosc
+
+    assert grzecznosc("hej, jakie kwestie omówić na rozmowie?") is None
+    assert grzecznosc("Jakie argumenty uzasadniają ocenę?") is None
