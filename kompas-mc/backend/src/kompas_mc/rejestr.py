@@ -102,6 +102,7 @@ ETYKIETY: dict[str, str] = {
     "GET /api/pracownicy/{osoba_id}/opis": "Odczyt opisu osoby",
     "POST /api/pracownicy/{osoba_id}/cele": "Nowy cel rozwojowy",
     "POST /api/procesy": "Rozpoczęcie oceny",
+    "POST /api/demo/pracownicy/{osoba_id}/od-poczatku": "Demo: ocena od początku (skasowane dane osoby)",
     f"PUT {_P}/krok2": "Zapis kryteriów i wskaźników",
     f"PUT {_P}/krok2/zapoznanie": "Zakończenie części I (zapoznanie z kryteriami)",
     f"GET {_P}/ocena": "Odczyt oceny kryteriów",

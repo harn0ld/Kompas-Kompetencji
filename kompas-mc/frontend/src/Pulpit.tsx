@@ -5,6 +5,7 @@ import {
   pobierzCykl,
   pobierzMapeKompetencji,
   pobierzPracownikow,
+  zacznijOdPoczatku,
   type Cel,
   type EtapOsoby,
   type MapaKompetencji as Mapa,
@@ -92,6 +93,10 @@ export function Pulpit({
   const [wszystkie, setWszystkie] = useState(false);
   const [rozmowa, setRozmowa] = useState<{ id: number; tekst: string } | null>(null);
   const [mapa, setMapa] = useState<Mapa | null>(null);
+  // Demo (#186): po „Rozpocznij od początku” lista spraw wczytuje się od nowa.
+  const [wczytanie, setWczytanie] = useState(0);
+  const [resetowana, setResetowana] = useState<string | null>(null);
+  const [komunikat, setKomunikat] = useState<string | null>(null);
   const rola = sesja.uzytkownik.rola;
   const zespol = rola !== "oceniany";
   // Konto ocenianego (G2, 22.11): prawa kolumna z celami i ostatnią oceną zamiast pustego miejsca obok jednego wiersza.
@@ -122,7 +127,23 @@ export function Pulpit({
     return () => {
       aktualne = false;
     };
-  }, [sesja.token, onWyloguj]);
+  }, [sesja.token, onWyloguj, wczytanie]);
+
+  async function odPoczatku(p: Pracownik) {
+    const ocena = p.demo_od_poczatku === "pierwsza" ? "pierwszą ocenę" : "ocenę okresową";
+    if (!window.confirm(`Rozpocząć ${ocena} ${p.imie} ${p.nazwisko} od początku? Wszystkie dotychczasowe ustalenia tej osoby (kryteria, oceny, samoocena, rozmowa, cele i notatki) zostaną skasowane.`)) return;
+    setResetowana(p.osoba_id);
+    setKomunikat(null);
+    try {
+      await zacznijOdPoczatku(sesja.token, p.osoba_id);
+      setKomunikat(`${p.imie} ${p.nazwisko}: ${ocena} zaczynasz od pierwszego etapu.`);
+      setWczytanie((n) => n + 1);
+    } catch {
+      setKomunikat(`Nie udało się zacząć oceny ${p.imie} ${p.nazwisko} od początku.`);
+    } finally {
+      setResetowana(null);
+    }
+  }
 
   // Mapa kompetencji (#33) wymaga dostępu do treści ocen: ma ją przełożony, HR nie.
   useEffect(() => {
@@ -218,6 +239,11 @@ export function Pulpit({
             )}
           </div>
           {blad && <p className="blad">{blad}</p>}
+          {komunikat && (
+            <p className="meta" role="status">
+              {komunikat}
+            </p>
+          )}
           {!blad && lista === null && <SzkieletListy />}
           {lista?.length === 0 && (
             <p className="meta">
@@ -226,16 +252,33 @@ export function Pulpit({
           )}
           {lista && lista.length > 0 && (
             <div className="lista">
-              {(skrocona ? lista.slice(0, NA_START) : lista).map((s) => (
-                <WierszListy
-                  key={s.osoba.osoba_id}
-                  lewa={<Inicjaly imie={s.osoba.imie} nazwisko={s.osoba.nazwisko} />}
-                  tytul={`${s.osoba.imie} ${s.osoba.nazwisko}`}
-                  znacznik={<Plakietka e={s.e} />}
-                  opis={opisCzynnosci(s.e, zespol)}
-                  onClick={() => onWybierz(s.osoba)}
-                />
-              ))}
+              {(skrocona ? lista.slice(0, NA_START) : lista).map((s) => {
+                const wiersz = (
+                  <WierszListy
+                    key={s.osoba.osoba_id}
+                    lewa={<Inicjaly imie={s.osoba.imie} nazwisko={s.osoba.nazwisko} />}
+                    tytul={`${s.osoba.imie} ${s.osoba.nazwisko}`}
+                    znacznik={<Plakietka e={s.e} />}
+                    opis={opisCzynnosci(s.e, zespol)}
+                    onClick={() => onWybierz(s.osoba)}
+                  />
+                );
+                // Demo (#186): przycisk obok wiersza, nie w nim (przycisk w przycisku jest niedozwolony).
+                if (rola !== "przelozony" || !s.osoba.demo_od_poczatku) return wiersz;
+                return (
+                  <div key={s.osoba.osoba_id} className="pulpit-wiersz-demo">
+                    {wiersz}
+                    <button
+                      type="button"
+                      className="jasny pulpit-od-poczatku"
+                      disabled={resetowana !== null}
+                      onClick={() => odPoczatku(s.osoba)}
+                    >
+                      {resetowana === s.osoba.osoba_id ? "Zaczynam od nowa…" : "Rozpocznij od początku"}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
           {skrocona && (
