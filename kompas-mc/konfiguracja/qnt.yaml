@@ -215,7 +215,7 @@ pracownicy:
   # da się przejść trzy razy.
 
   - osoba_id: P-111
-    imie: Joanna
+    imie: Beata
     nazwisko: Kaczmarek-Demo
     stanowisko: radca
     symbol_osp: DSI WWI 5
@@ -234,7 +234,7 @@ pracownicy:
     demo_od_poczatku: okresowa   # przycisk „Rozpocznij od początku” na pulpicie (#186)
 
   - osoba_id: P-121
-    imie: Monika
+    imie: Edyta
     nazwisko: Witkowska-Demo
     stanowisko: radca
     symbol_osp: DSI WWI 5
@@ -347,7 +347,7 @@ pracownicy:
     scenariusz: Dane testowe, kopia P-104. Ocena w toku bez pilnego terminu (następna 2027-10-15) – tło listy HR.
 
   - osoba_id: P-124
-    imie: Krzysztof
+    imie: Tadeusz
     nazwisko: Marciniak-Demo
     stanowisko: radca
     symbol_osp: DSI WWI 5
