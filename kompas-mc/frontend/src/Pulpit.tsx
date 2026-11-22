@@ -189,7 +189,7 @@ export function Pulpit({
           <Wydra poza="stoi" szerokosc={48} naStart="machanie" />
           <div>
             <h1>Asystent formalny</h1>
-            <p className="meta">Odpowiada cytatem z materiałów MC. Nie ocenia pracownika.</p>
+            <p className="meta">Odpowiada na podstawie materiałów MC i instrukcji aplikacji. Nie ocenia pracownika.</p>
           </div>
           <button type="button" className="link" onClick={() => setRozmowa(null)}>
             Wróć do pulpitu

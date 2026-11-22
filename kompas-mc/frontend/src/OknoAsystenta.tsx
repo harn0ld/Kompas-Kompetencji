@@ -51,7 +51,7 @@ export function OknoAsystenta({
           <Wydra poza="stoi" szerokosc={48} naStart="machanie" />
           <div>
             <h2 id="okno-asystenta-tytul">Asystent formalny</h2>
-            <p className="meta">Odpowiada cytatem z materiałów MC</p>
+            <p className="meta">Odpowiada na podstawie materiałów MC i instrukcji aplikacji</p>
           </div>
           <button type="button" className="ikona-przycisk" aria-label="Zamknij asystenta" onClick={onZamknij}>
             <Ikona nazwa="krzyz" />
