@@ -27,6 +27,7 @@ powołuje ustawę, której tekstu nie ma w bazie.
 
 from __future__ import annotations
 
+import json
 import math
 import re
 from collections import Counter
@@ -103,6 +104,8 @@ class OdpowiedzAsystenta(BaseModel):
     pokrycie: float = 0.0
     """Podobieństwo do pozycji FAQ albo udział pojęć pytania w najlepszym fragmencie."""
     faq_id: str | None = None
+    uproszczona: bool = False
+    """Treść przepisana prostym językiem przez model (prośba „prościej”), z walidacją cytatu."""
     nieznane_pojecia: list[str] = []
     uwagi: list[str] = []
 
@@ -212,8 +215,49 @@ class Asystent:
 
     # --- API --------------------------------------------------------------------------
 
+    # Prośba o prostszą wersję odpowiedzi („a prościej?”, „krócej”, „po ludzku”).
+    _UPROSC = re.compile(r"\b(prości\w*|prostsz\w*|krócej|krótsz\w*|jaśniej|po ludzku|w skrócie)", re.IGNORECASE)
+
     def odpowiedz(
-        self, pytanie: str, sciezka: Sciezka | None = None, kontekst: str | None = None
+        self, pytanie: str, sciezka: Sciezka | None = None, kontekst: str | None = None,
+        poprzednie: str | None = None,
+    ) -> OdpowiedzAsystenta:
+        """``poprzednie``: ostatnie pytanie z rozmowy w oknie asystenta (jak historia czatu w STAGO).
+        Dopytanie bez własnych pojęć („a prościej?”) szuka w źródłach razem z nim; prośba o prostszą
+        wersję przepisuje odpowiedź prostym językiem przez model, z tymi samymi cytatami (Karol 22.11)."""
+        uprosc = bool(self._UPROSC.search(pytanie))
+        wynik = self._odpowiedz(pytanie, sciezka, kontekst, uprosc)
+        if not wynik.znaleziono and poprzednie:
+            ponownie = self._odpowiedz(f"{poprzednie.strip()} {pytanie}", sciezka, kontekst, uprosc)
+            if ponownie.znaleziono:
+                return ponownie.model_copy(update={"pytanie": pytanie})
+        return wynik
+
+    def _uprosc(self, tresc: str, fragmenty: list[Fragment]) -> str | None:
+        """Ta sama odpowiedź prostym językiem. Instrukcja core każe składać tresc z cytatów, więc model
+        zwraca JSON (jak podpowiedź rozmowy, #164); bez modelu albo przy złej odpowiedzi: None."""
+        dostawcy = [d for d in self.dostawcy if d.tryb != Tryb.EKSTRAKCYJNE]
+        if not dostawcy or not fragmenty:
+            return None
+        polecenie = (
+            "Przepisz tę odpowiedź prostym językiem, w 2–3 krótkich zdaniach, bez numerów paragrafów "
+            f"i bez nowych informacji: „{tresc}”. W polu \"tresc\" zwróć tekst z obiektem JSON "
+            '{"odpowiedz": "…"}, a w "cytaty" dosłowny fragment źródła, na którym się opiera.'
+        )
+        try:
+            w = wywolaj(
+                Zapytanie(operacja="asystent_uproszczenie", prompt_wersja=self.konf.wersja, pytanie=polecenie, fragmenty=fragmenty),
+                dostawcy,
+                self.dziennik,
+            )
+            dane = json.loads(w.odpowiedz.tresc or "")
+        except (BrakOdpowiedzi, ValueError):
+            return None
+        odp = str(dane.get("odpowiedz") or "").strip() if isinstance(dane, dict) else ""
+        return odp if 0 < len(odp) <= 600 else None
+
+    def _odpowiedz(
+        self, pytanie: str, sciezka: Sciezka | None, kontekst: str | None, uprosc: bool
     ) -> OdpowiedzAsystenta:
         brak = OdpowiedzAsystenta(
             pytanie=pytanie, sciezka=sciezka, znaleziono=False, komunikat=self.konf.komunikat_brak
@@ -310,17 +354,23 @@ class Asystent:
         if any(c.powoluje_ustawe for c in cytaty):
             uwagi.append(self._kom("ustawa"))
         pokrycie = podob if faq else self._pokrycie(zapytanie, cytaty[0].cytat if cytaty else "")
+        tresc = faq.odpowiedz if faq else (wynik.odpowiedz.tresc if wynik else None)
+        uproszczona = False
+        if uprosc and tresc and (prosciej := self._uprosc(tresc, wybrane)):
+            tresc, uproszczona = prosciej, True
+            uwagi.append("Prostsza wersja przygotowana przez model AI; podstawą są te same cytowane źródła.")
         return OdpowiedzAsystenta(
             pytanie=pytanie,
             sciezka=sciezka,
             znaleziono=True,
-            tresc=faq.odpowiedz if faq else (wynik.odpowiedz.tresc if wynik else None),
+            tresc=tresc,
             cytaty=cytaty,
             tryb=wynik.tryb if wynik else Tryb.EKSTRAKCYJNE,
             dostawca=wynik.dostawca if wynik else ("faq" if faq else "przepis"),
             odrzuceni=wynik.odrzuceni if wynik else [],
             pokrycie=round(pokrycie, 3),
             faq_id=faq.id if faq else None,
+            uproszczona=uproszczona,
             uwagi=uwagi,
         )
 
