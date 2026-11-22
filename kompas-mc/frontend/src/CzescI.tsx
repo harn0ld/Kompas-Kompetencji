@@ -24,6 +24,7 @@ export function ZakonczenieCzesciI({
   onZapisano,
   onDalej,
   onPracownik,
+  demo = false,
 }: {
   token: string;
   proces: ProcesOceny;
@@ -33,12 +34,16 @@ export function ZakonczenieCzesciI({
   onZapisano: (p: ProcesOceny) => void;
   onDalej: () => void;
   onPracownik: () => void;
+  /** Osoba demo (#235): pełna „Rozmowa 1” z drukiem także na końcu okresu, a zapis prowadzi do części II. */
+  demo?: boolean;
 }) {
   const naKoncuOkresu = cykl?.etap === "ocena";
+  // Widok rozmowy na początku okresu (zagadnienia, druk, dzisiejsza data); dla demo zawsze.
+  const rozmowa = !naKoncuOkresu || demo;
   // Na początku okresu rozmowa jest dziś; na końcu okresu data pochodzi z podpisanej części I i wyznacza
   // początek okresu w arkuszu („od”), więc pole startuje puste, zamiast podsuwać dzisiejszą datę.
   const [wpisana, setData] = useState<string | null>(wybor.zapoznanie ?? null);
-  const dataZapoznania = wpisana ?? (naKoncuOkresu ? null : new Date().toLocaleDateString("sv-SE"));
+  const dataZapoznania = wpisana ?? (rozmowa ? new Date().toLocaleDateString("sv-SE") : null);
   const [ustalenia, setUstalenia] = useState(wybor.ustalenia ?? "");
   const [czekam, setCzekam] = useState(false);
   const [drukuje, setDrukuje] = useState(false);
@@ -82,7 +87,7 @@ export function ZakonczenieCzesciI({
   return (
     <div className="k2-ustalone czesc-i" role="status">
       <h2 ref={tytul} tabIndex={-1}>
-        {naKoncuOkresu
+        {!rozmowa
           ? "Ustalenia z podpisanej części I"
           : zakonczona
             ? "Rozmowa 1 zakończona: ustalenia na okres"
@@ -93,7 +98,7 @@ export function ZakonczenieCzesciI({
         {dodatkowe > 0 && ` i ${dodatkowe} dodatkowe`}
         {cykl?.termin && ` · ${cykl.termin.nazwa} do ${data(cykl.termin.data)}`}
       </p>
-      {naKoncuOkresu ? (
+      {!rozmowa ? (
         <p className="meta">
           Część I podpisano na początku okresu. Przepisz z niej datę zapoznania z kryteriami: od niej liczy się okres oceny.
         </p>
@@ -109,7 +114,7 @@ export function ZakonczenieCzesciI({
       )}
       {zakonczona ? (
         <p className="sukces">
-          {naKoncuOkresu
+          {!rozmowa
             ? `Zapoznanie z kryteriami: ${data(wybor.zapoznanie as string)}.`
             : `Część I zakończona ${data(wybor.zapoznanie as string)}. Oryginał do akt osobowych, kopia dla ocenianego (§ 6 ust. 3).`}
         </p>
@@ -118,7 +123,7 @@ export function ZakonczenieCzesciI({
           <>
             <PoleDaty nazwa="Data rozmowy i zapoznania z kryteriami (§ 6 ust. 2)" wartosc={dataZapoznania} onZmiana={setData} />
             <label className="etykieta oc-uwagi">
-              {naKoncuOkresu ? "Cele z podpisanej części I (opcjonalnie, każdy w osobnym wierszu)" : "Oczekiwania i cele na okres (opcjonalnie, § 5 ust. 1 pkt 3–4)"}
+              {!rozmowa ? "Cele z podpisanej części I (opcjonalnie, każdy w osobnym wierszu)" : "Oczekiwania i cele na okres (opcjonalnie, § 5 ust. 1 pkt 3–4)"}
               <textarea rows={3} value={ustalenia} onChange={(e) => setUstalenia(e.target.value)} />
             </label>
           </>
@@ -130,14 +135,20 @@ export function ZakonczenieCzesciI({
         <button type="button" className="link k2-do-pracownika" onClick={onPracownik}>
           Wróć do pracownika
         </button>
-        {cykl?.etap !== "brak_danych" && !naKoncuOkresu && (
+        {cykl?.etap !== "brak_danych" && rozmowa && (
           <button type="button" className="jasny" disabled={drukuje} onClick={drukuj}>
             {drukuje ? "Przygotowuję PDF…" : "Pobierz część I do podpisu"}
           </button>
         )}
         {moznaProwadzic && !zakonczona && (
           <button type="button" disabled={czekam || !dataZapoznania || !poprawnaData(dataZapoznania)} onClick={zapisz}>
-            {czekam ? "Zapisuję…" : naKoncuOkresu ? "Zapisz i przejdź do rozmowy oceniającej" : "Zapisz i zakończ część I"}
+            {czekam
+              ? "Zapisuję…"
+              : naKoncuOkresu
+                ? demo
+                  ? "Zapisz część I i przejdź dalej"
+                  : "Zapisz i przejdź do rozmowy oceniającej"
+                : "Zapisz i zakończ część I"}
           </button>
         )}
         {zakonczona && naKoncuOkresu && (
