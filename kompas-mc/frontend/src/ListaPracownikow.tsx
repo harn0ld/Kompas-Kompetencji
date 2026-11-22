@@ -25,7 +25,7 @@ import "./tabela.css";
  * w tym samym filtrze co kliknięcie w Zespole; komórka z Zespołu zostaje znacznikiem do zdjęcia. Wiersz otwiera kartę.
  */
 type Kolumna = "osoba" | "stanowisko" | "departament" | "wydzial" | "sciezka" | "czynnosc" | "termin" | "ocena";
-type Grupowanie = "brak" | "departament" | "wydzial" | "etap";
+export type Grupowanie = "brak" | "departament" | "wydzial" | "etap";
 type KluczFiltra = "etap" | "termin" | "sciezka" | "ocena";
 interface Sortowanie {
   kolumna: Kolumna;
@@ -247,18 +247,21 @@ export function ListaPracownikow({
   onFiltr,
   onWybierz,
   onWyloguj,
+  grupuj,
 }: {
   sesja: Sesja;
   filtr: FiltrPracownikow;
   onFiltr: (f: FiltrPracownikow) => void;
   onWybierz: (p: Pracownik) => void;
   onWyloguj: () => void;
+  /** Grupowanie na start (skrót „wydziały” z pulpitu, zgłoszenie 187); dalej zmienia je użytkownik. */
+  grupuj?: Grupowanie;
 }) {
   const { sprawy, blad } = useSprawy(sesja, onWyloguj);
   const oceniany = sesja.uzytkownik.rola === "oceniany";
   const [szukaj, setSzukaj] = useState("");
   const [sort, setSort] = useState<Sortowanie>({ kolumna: "termin", malejaco: false });
-  const [grupowanie, setGrupowanie] = useState<Grupowanie>("brak");
+  const [grupowanie, setGrupowanie] = useState<Grupowanie>(grupuj ?? "brak");
   const [zwiniete, setZwiniete] = useState<Set<string>>(() => new Set());
   const [ukryte, setUkryte] = useState<Kolumna[]>(wczytajUkryte);
   const [strona, setStrona] = useState(0);
@@ -301,6 +304,7 @@ export function ListaPracownikow({
   const znaczniki: [keyof FiltrPracownikow, string][] = [];
   if (filtr.komorka) znaczniki.push(["komorka", podzial(filtr.komorka).wydzial]);
   if (filtr.stan) znaczniki.push(["stan", NAZWA_STANU[filtr.stan]]);
+  if (filtr.doZrobienia) znaczniki.push(["doZrobienia", "do zrobienia"]);
   const cokolwiek = Object.values(filtr).some(Boolean) || szukaj.trim() !== "";
   const wyczysc = () => {
     setSzukaj("");
