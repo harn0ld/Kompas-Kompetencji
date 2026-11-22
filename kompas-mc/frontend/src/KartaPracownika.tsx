@@ -71,6 +71,8 @@ interface Dane {
   cykl: EtapOsoby | null;
   /** Mapa kompetencji (#33): tylko przełożony; oceny cząstkowe ostatniej oceny z akt. */
   mapa: MapaKompetencji | null;
+  /** Ostatnia ocena okresowa zakończona w aplikacji (zgłoszenie 175): podgląd poziomów i samooceny tego cyklu. */
+  zakonczony: ProcesOceny | null;
 }
 
 export function KartaPracownika({
@@ -87,7 +89,7 @@ export function KartaPracownika({
   osoba: Pracownik;
   onWroc: () => void;
   /** Proces w toku (#49): App otwiera jego bieżący krok; null = krok 1; "krok2" = kryteria procesu (etap na karcie, #55). */
-  onOcen: (proces: ProcesOceny | null, etap?: "krok2") => void;
+  onOcen: (proces: ProcesOceny | null, etap?: "krok2" | "ocena") => void;
   /** Pracownik otwiera „Moją samoocenę” procesu (#9). */
   onSamoocena?: (procesId: number) => void;
   /** Sekcja celów rozwojowych osoby (#11, komponent z gałęzi celów); bez niej sekcji nie ma. */
@@ -134,6 +136,7 @@ export function KartaPracownika({
           samoocena,
           cykl: cykl.find((c) => c.osoba_id === osoba.osoba_id) ?? null,
           mapa,
+          zakonczony: [...wlasne].reverse().find((p) => p.status === "ZAKONCZONY" && p.sciezka === "okresowa") ?? null,
         });
       } catch (err) {
         if (String(err).includes("401")) onWyloguj();
@@ -198,6 +201,13 @@ export function KartaPracownika({
               osoba={osoba}
               mapa={dane.mapa}
               pierwsza={(dane.cykl?.sciezka ?? dane.proces?.sciezka) === "pierwsza"}
+              // Szczegóły poprzedniej oceny zakończonej w aplikacji: przełożony i pracownik (HR nie widzi treści ocen).
+              onSzczegoly={dane.zakonczony && sesja.uzytkownik.rola !== "hr" ? () => onOcen(dane.zakonczony, "ocena") : undefined}
+              onSamoocena={
+                dane.zakonczony && sesja.uzytkownik.rola === "oceniany" && onSamoocena
+                  ? () => onSamoocena(dane.zakonczony!.id)
+                  : undefined
+              }
             />
             {/* Karol 22.11: opis stanowiska (co oceniamy) przed celami rozwojowymi. */}
             {dane.analiza?.osp && <OpisStanowiska osp={dane.analiza.osp} />}
@@ -504,11 +514,15 @@ function OcenyKryteriow({
   osoba,
   mapa,
   pierwsza,
+  onSzczegoly,
+  onSamoocena,
 }: {
   ocena: StanOceny | null;
   osoba: Pracownik;
   mapa: MapaKompetencji | null;
   pierwsza: boolean;
+  onSzczegoly?: () => void;
+  onSamoocena?: () => void;
 }) {
   const o = pierwsza ? null : osoba.ostatnia_ocena_okresowa;
   const p = pierwsza ? null : osoba.pierwsza_ocena;
@@ -528,6 +542,24 @@ function OcenyKryteriow({
               Poprzednia ocena okresowa <span className={`status ${o.wynik}`}>{o.wynik}</span>{" "}
               <span className="meta">sporządzona {data(o.data)}</span>
             </p>
+          )}
+          {/* Zgłoszenie 175: wejście w szczegóły (poziomy wskaźników, samoocena) poprzedniego cyklu, tylko do odczytu. */}
+          {o && (onSzczegoly || onSamoocena) && (
+            <div className="akcje-poprzedniej">
+              {onSzczegoly && (
+                <button type="button" className="link" onClick={onSzczegoly}>
+                  Szczegóły poprzedniej oceny
+                </button>
+              )}
+              {onSamoocena && (
+                <button type="button" className="link" onClick={onSamoocena}>
+                  Twoja samoocena z tego cyklu
+                </button>
+              )}
+            </div>
+          )}
+          {o && !onSzczegoly && !onSamoocena && (
+            <p className="meta zero">Szczegółowe odpowiedzi z tej oceny są w aktach osobowych; kartoteka QNT ma tylko podsumowanie.</p>
           )}
           {p && (
             <p className="zero">

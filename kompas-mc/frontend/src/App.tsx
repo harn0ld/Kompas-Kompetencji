@@ -163,7 +163,7 @@ export default function App() {
           token={sesja.token}
           osoba={oceniany}
           proces={proces}
-          moznaProwadzic={prowadzi && !podgladCzesciI}
+          moznaProwadzic={prowadzi && !podgladCzesciI && proces.status === "W_TOKU"}
           onWstecz={() => setProces(null)}
           onDalej={() => {
             setPodgladCzesciI(false);
@@ -181,7 +181,7 @@ export default function App() {
           token={sesja.token}
           osoba={oceniany}
           proces={proces}
-          moznaProwadzic={prowadzi}
+          moznaProwadzic={prowadzi && proces.status === "W_TOKU"}
           onWstecz={() => {
             // Z rozmowy kryteria tylko do podglądu: część I ustalono na początku okresu (§ 5–6, § 9 ust. 3).
             setPodgladCzesciI(true);
