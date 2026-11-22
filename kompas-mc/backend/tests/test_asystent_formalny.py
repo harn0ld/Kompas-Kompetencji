@@ -455,3 +455,13 @@ def test_hej_dostaje_model_z_rola_i_kartami_a_bez_modelu_zostaje_odmowa(asystent
     zapytanie = atrapa.zapytania[-1]
     assert zapytanie.rola.startswith("Jesteś asystentem formalnym Kompasu Kompetencji")
     assert zapytanie.fragmenty[0].tekst.startswith("Karta 1. Co potrafi asystent")
+
+    # Serwer 22.11: „dzięki” trafiało słowem w poradnik i dostawało przypadkowe fragmenty. Podziękowanie
+    # nie niesie treści pytania, więc też idzie do modelu z kartami.
+    asystent.dostawcy = [atrapa, *poprzedni]
+    try:
+        dzieki = asystent.odpowiedz("dzięki")
+    finally:
+        asystent.dostawcy = poprzedni
+    assert dzieki.znaleziono and dzieki.cytaty[0].doc_id == "instrukcja-kompas"
+    assert atrapa.zapytania[-1].pytanie == "dzięki"
