@@ -69,8 +69,9 @@
 /* Nazwy komórek w całości, w kilku wierszach (przegląd serwera, zgłoszenie 122, poz. 8): ucięte wyglądały jak ta sama komórka. */
 .nazwa-komorki { overflow-wrap: break-word; }
 .tabela-pracownikow td.kol-czynnosc { min-width: 160px; }
-/* Wąska treść (tablet, okno obok okna): całe słowa i przewijanie w bok; nagłówek nie przykleja się wtedy do okna. */
-@container (max-width: 959px) {
+/* Wąska treść (tablet, okno obok okna, laptop 1100 px): całe słowa i przewijanie w bok; nagłówek nie przykleja się wtedy do okna.
+   Próg nad szerokością tabeli z danymi demo (ok. 1010 px), inaczej przy oknie 1100 px wychodziła poza ekran (zgłoszenie 229). */
+@container (max-width: 1079px) {
   .tabela-przewijana { overflow-x: auto; }
   .nazwa-komorki { overflow-wrap: normal; }
 }
