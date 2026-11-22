@@ -24,6 +24,7 @@ from .cele import KonfiguracjaCelow
 from .cele_api import router as router_celow
 from .cele_llm import PodpowiedziLlm
 from .cykl import router as router_cyklu
+from .demo_api import router as router_demo
 from .hr import terminy_z_regul
 from .hr_api import router as router_hr
 from .hr_api import router_terminow
@@ -117,6 +118,7 @@ def utworz_aplikacje(ustawienia: Ustawienia | None = None) -> FastAPI:
     qnt = MockQnt.z_pliku(ust.qnt)
     katalog = KatalogOsp()
     app.include_router(router_pracownikow(auth, qnt))
+    app.include_router(router_demo(auth, qnt))
     konf_krok1 = KonfiguracjaKroku1.z_pliku(ust.krok1)
     app.include_router(router_procesow(auth, qnt, katalog, konf_krok1))
     krok2 = StanKroku2()

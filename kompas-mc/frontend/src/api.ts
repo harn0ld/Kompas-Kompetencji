@@ -87,6 +87,8 @@ export interface Pracownik {
   wniosek_o_mianowanie?: boolean | null;
   zastepstwo?: boolean;
   nieobecnosci?: { od: string; do: string; rodzaj: string }[];
+  /** Osoba demo z przyciskiem „Rozpocznij od początku” (#186): którą ocenę testujemy. */
+  demo_od_poczatku?: "okresowa" | "pierwsza" | null;
 }
 
 const autoryzacja = (token: string) => ({ authorization: `Bearer ${token}` });
@@ -875,6 +877,12 @@ export interface MapaKompetencji {
 
 export const pobierzMapeKompetencji = (token: string) =>
   fetch("/api/zespol/kompetencje", { headers: autoryzacja(token) }).then((r) => json<MapaKompetencji>(r));
+
+/** Demo (#186): kasuje dane oceny osoby demo, ocena zaczyna się od pierwszego etapu. */
+export const zacznijOdPoczatku = (token: string, osobaId: string) =>
+  fetch(`/api/demo/pracownicy/${osobaId}/od-poczatku`, { method: "POST", headers: autoryzacja(token) }).then((r) =>
+    json<{ osoba_id: string; sciezka: string; usuniete_procesy: number }>(r),
+  );
 
 export const pobierzCykl = (token: string) =>
   fetch("/api/cykl", { headers: autoryzacja(token) }).then((r) => json<EtapOsoby[]>(r));

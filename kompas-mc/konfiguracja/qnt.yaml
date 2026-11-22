@@ -65,6 +65,7 @@ pracownicy:
       oceny_czastkowe: { wykorzystywanie-wiedzy-i-doskonalenie-zawodowe: 7, rzetelnosc: 7, organizacja-pracy-i-orientacja-na-osiaganie-celow: 5, wspolpraca: 5, komunikacja: 3 }   # fikcyjne punkty z arkusza (demo #33)
     oczekiwany_arkusz: C
     scenariusz: GŁÓWNA ŚCIEŻKA DEMO. Ocena okresowa na arkuszu C, termin 24 mies. od 2024-12-02 → 2026-12-02 (za 11 dni); urzędnik SC → możliwy wniosek o stopień służbowy (§ 11 ust. 5).
+    demo_od_poczatku: okresowa   # przycisk „Rozpocznij od początku” na pulpicie (#186)
 
   - osoba_id: P-102
     imie: Piotr
@@ -187,6 +188,7 @@ pracownicy:
     wniosek_o_mianowanie: false
     pierwsza_ocena: { egzamin_sluzba_przygotowawcza: nie_dotyczy, rozmowa_wstepna: 2026-02-16 }
     scenariusz: Absolwent KSAP bez wniosku o mianowanie – warunku egzaminu nie stosuje się (§ 10 ust. 3 pkt 1).
+    demo_od_poczatku: pierwsza   # przycisk „Rozpocznij od początku” na pulpicie (#186)
 
   - osoba_id: P-204
     imie: Paweł

@@ -87,3 +87,12 @@ button.pulpit-wiecej { align-self: flex-start; min-height: 44px; text-align: lef
 .pulpit-cele .status.info { background: var(--k-info-bg); color: var(--k-info-text); }
 .pulpit-cele .status.wyciszona { background: none; color: var(--k-text-muted); border: 1px solid var(--k-line); }
 .pulpit-ostatnia { display: flex; align-items: center; gap: var(--o-12); margin: 0; }
+
+/* Demo (#186): „Rozpocznij od początku” w wierszu osoby demo, pod opisem (wyrównany do tekstu); wiersz rezerwuje
+   na niego miejsce na dole, więc nic nie zachodzi na tekst ani strzałkę przy żadnej szerokości. */
+.pulpit-wiersz-demo { position: relative; }
+.lista .pulpit-wiersz-demo > button.pozycja { padding-bottom: calc(var(--o-16) + var(--c-action) + var(--o-12)); }
+.pulpit-wiersz-demo > button.pulpit-od-poczatku {
+  position: absolute; left: calc(var(--o-16) + 40px + var(--o-12)); bottom: var(--o-16);
+  background: var(--k-surface); border: 1px solid var(--k-line);
+}

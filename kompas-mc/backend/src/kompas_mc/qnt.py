@@ -71,6 +71,8 @@ class Pracownik(_Model):
     """Tylko do testów; arkusz wylicza reguła § 3 rozp. 2016."""
     scenariusz: str | None = Field(default=None, exclude=True)
     """Opis, co rekord pokazuje na demo; nie jest daną kadrową."""
+    demo_od_poczatku: Literal["okresowa", "pierwsza"] | None = None
+    """Osoba demo z przyciskiem „Rozpocznij od początku” na pulpicie (#186); wartość mówi, którą ocenę testujemy."""
 
 
 class MockQnt:
