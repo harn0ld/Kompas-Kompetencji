@@ -296,4 +296,10 @@ def test_ocena_okresowa_klikaniem_od_karty_do_pdf(przegladarka):
     expect(poprzednie).to_contain_text("pozytywna")
     expect(poprzednie).to_contain_text(f"sporządzona {date.today().strftime('%d.%m.%Y')}")
     s.krok("II-karta-po-zakonczeniu")
+
+    # Zgłoszenie 175: z poprzedniej oceny (zakończonej w aplikacji) wejście w szczegóły tego cyklu, tylko do odczytu.
+    poprzednie.get_by_role("button", name="Szczegóły poprzedniej oceny").click()
+    expect(page.get_by_role("heading", level=1, name="Rozmowa oceniająca")).to_be_visible()
+    expect(page.locator(".oc-ekran input:not([disabled]), .oc-ekran textarea:not([disabled])")).to_have_count(0)
+    s.krok("II-szczegoly-poprzedniej")
     s.zamknij()

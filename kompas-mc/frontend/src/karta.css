@@ -62,3 +62,7 @@ button.etap:focus-visible { outline: 2px solid var(--k-focus); outline-offset: 2
 .karta .sekcje-karty > .sekcja, .karta .sekcje-karty > section { gap: var(--o-16); }
 .karta .sekcje-karty > section { border-top: 0; padding-top: 0; margin-bottom: 0; }
 .oceny-kryteriow .kafel-etykieta { margin-top: var(--o-8); }
+
+/* Zgłoszenie 175: wejścia w szczegóły poprzedniej oceny. */
+.akcje-poprzedniej { display: flex; flex-wrap: wrap; gap: var(--o-16); }
+.akcje-poprzedniej button.link { min-height: 44px; }
